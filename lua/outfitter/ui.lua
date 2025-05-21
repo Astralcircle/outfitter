@@ -136,109 +136,6 @@ function SetUIFetching(wsid,is,FR,force)
 	end
 end
 
-
-
-local function Command(com,v1)
-	com = com:lower()
-	
-	if NOUI then return end
-	
-	if com=="outfit" or com=="otufit" or com=="oufit" or com=="fouti" then
-		local n = v1 and tonumber(v1:Trim())
-		v1=v1 and v1:lower():Trim()
-		
-		if not n and v1 then
-			n = UrlToWorkshopID(tostring(v1))
-			if n then
-				n=tonumber(n)
-			end
-		end
-		
-		dbg("outfitcmd",v1,n)
-		if n then
-			UIChangeModelToID(n)
-			
-		elseif v1 == "apply" or v1=='aply' or v1=='a' or v1 == "send" or v1=='snd' or v1=='s'  then
-			UIBroadcastMyOutfit()
-		elseif v1 == "cancel" or v1=='c' or v1=='canecl'  or v1=='d'  or v1=='del'  or v1=='delete' or v1=='remove' then
-			UICancelAll()
-		elseif v1 == "autowear" or v1== "save" then
-			SetAutowear()
-		elseif v1 == "fixanims" then
-			FixLocalPlayerAnimations(true)
-		elseif v1 == "fullupdate" then
-			Fullupdate()
-		else
-			GUIOpen()
-			--UIError"Invalid command"
-		end
-		return true
-		
-	elseif com==Tag or com=='outfiter'  or com=='oufiter'  or com=='oufitr' or com=='utfitter' or com=='utfiter' then
-		local n = v1 and tonumber(v1)
-		if not n and v1 then
-			n = UrlToWorkshopID(tostring(v1))
-			if n then
-				n=tonumber(n)
-			end
-		end
-		if n then
-			UIChoseWorkshop(n)
-		elseif v1 == "fixanims" then
-			FixLocalPlayerAnimations(true)
-		elseif v1 == "fullupdate" then
-			Fullupdate()
-		elseif v1 and v1:len()>0 then
-			GUIWantChangeModel(v1)
-		else
-			GUIOpen()
-		end
-		return true
-	end
-end
-
-
-concommand.Add(Tag..'_cmd',function(_,_,args,line)
-	if not line then
-		chat.AddText("[Outfitter] Something is messing with the concommand library (outdated addon?)")
-		line=args[1]
-	end
-	if line:find"https?:$" then
-		MsgC(Color(255,155,111,255),'Invalid usage! ',Color(255,240,240,255),'Please quote the URL. Example: outfitter "https://steamcommunity.com/sharedfiles/filedetails/?id=1234"\n')
-		return
-	end
-	if args and args[1]then
-		local n = UrlToWorkshopID(line)
-		if n then
-			args={n}
-		end
-	end
-	Command('outfit',unpack(args))
-end)
-
-concommand.Add(Tag,function(_,_,args,line)
-	if not line then
-		chat.AddText("[Outfitter] Something is messing with the concommand library (outdated addon?)")
-		line=args[1]
-	end
-	if line:find"https?:$" then
-		MsgC(Color(255,155,111,255),'Invalid usage! ',Color(255,240,240,255),'Please quote the URL. Example: outfitter "https://steamcommunity.com/sharedfiles/filedetails/?id=1234"\n')
-		return
-	end
-	if args and args[1]then
-		local n = UrlToWorkshopID(line)
-		if n then
-			args={n}
-		end
-	end
-	
-	Command(Tag,unpack(args))
-end)
-
-hook.Add("ChatCommand",Tag,function(com,v1)
-	return Command(com,v1)
-end)
-
 concommand.Add("outfitter_bodygroups_list",function(pl,_,_,mdl)
 	if not mdl or mdl:Trim()=="" then
 		mdl = pl:GetModel()
@@ -480,9 +377,7 @@ hook.Add("OutfitApply",Tag,function(pl,mdl)
 		
 		notification.AddLegacy( "Outfit changed!", NOTIFY_UNDO, 2 )
 		SOUND( GENERIC )
-		if silent_apply_mdl ~= mdl then
-			UIMsg"Write '!outfit send' to send this outfit to everyone"
-		end
+
 		silent_apply_mdl = nil
 		if opengui then
 			GUIOpen()
