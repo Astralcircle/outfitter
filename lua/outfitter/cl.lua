@@ -262,7 +262,7 @@ function BroadcastMyOutfit(a)
 end
 
 hook.Add("PlayerSlowThink",Tag,function(pl)
-	if pl:InPVS() then
+	if not pl:IsDormant() then
 		OnPlayerVisible(pl)
 	end
 end)
