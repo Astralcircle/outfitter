@@ -158,7 +158,9 @@ do
 	local outfitter_nohighperf = CreateClientConVar("outfitter_nohighperf","0",false)
 	local highperf = 0
 	local prehighperf=true
-	function IsHighPerf()
+	function IsHighPerf(n)
+		if n and n>1 then return end -- TODO: ultra high perf
+
 		return prehighperf or (not outfitter_nohighperf:GetBool() and highperf>0)
 	end
 
