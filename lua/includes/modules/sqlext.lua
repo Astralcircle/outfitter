@@ -215,9 +215,6 @@ local ok,err = xpcall(function()
 		:coerce{ver=tonumber}
 	tablevers = t
 end,debug.traceback)
-if not ok then
-	ErrorNoHalt(err..'\n')
-end
 
 local function read_table_version(name)
 	if not tablevers then return nil,'tablevers unavailable' end
