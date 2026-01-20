@@ -19,26 +19,26 @@ function PrecacheModel(mdl)
 
 	local loaded = util.IsModelLoaded(mdl)
 	if loaded then return end
-	
+
 	dbg("ADDING TO LIST",('%q'):format(mdl))
-	
+
 	if StringTable then
 		StringTable("modelprecache"):AddString(true,mdl)
 		return
 	end
-	
+
 	if not ent or not ent:IsValid() then
 		ent = ents.Create'base_entity'
 		if not ent or not ent:IsValid() then return end
-		
+
 		ent:SetNoDraw(true)
 		ent:Spawn()
 		ent:SetNoDraw(true)
-		
+
 	end
-	
+
 	ent:SetModel(mdl)
-	
+
 end
 
 
@@ -62,54 +62,54 @@ function CyclePlayerModel(pl)
 end
 
 net.Receive(Tag,function(len,pl)
-	
+
 	--no longer needed
 	--dbg("CyclePlayerModel",pl)
 	--CyclePlayerModel(pl)
-	
+
 end)
 
 function NetData(pl,k,val)
 	if k~=NTag then return end
 	dbgn(2,"NetData","receiving outfit from",pl)
-	
+
 	if not isstring(val) and val~=nil then
 		dbg(pl,"val",type(val))
 		return false
 	end
-	
+
 	local mdl,download_info
 	if val then
-		
+
 		if #val>2048*2 or #val==0 then
 			dbg("NetData","badval",#val,pl)
 			return false
 		end
-		
+
 		mdl,download_info = DecodeOutfitterPayload(val)
-		
+
 	end
-	
+
 	local ret = hook.Run("CanOutfit",pl,mdl,download_info)
 	if ret == false then return false end
-	
+
 	pl:OutfitSetInfo(mdl,download_info)
-	
+
 	dbg("NetData",pl,"outfit",mdl,download_info)
-	
+
 	if not val then return true end
-		
+
 	local ret = SanityCheckNData(mdl,download_info)
-	
+
 	if ret~=nil then
 		dbg("NetData",pl,"sanity check fail",tostring(val):sub(1,256))
 		return ret
 	end
-	
+
 	assert(mdl)
-	
+
 	local should,remaining = pl:NetDataShouldLimit(NTag,util.IsModelLoaded(mdl) and 3 or 14)
-	
+
 	if should then
 		RateLimitMessage(pl,math.abs(remaining))
 		dbg("NetData",pl,"ratelimiting",string.NiceTime(math.ceil(math.abs(remaining))))
@@ -121,11 +121,11 @@ function NetData(pl,k,val)
 	end
 	PrecacheModel(mdl)
 	-- CyclePlayerModel(pl) -- it needs to happen after networking
-	
+
 	return true
 end
 
-net.Receive(NTagSkin,function(len,pl) 
+net.Receive(NTagSkin,function(len,pl)
 	local n = net.ReadUInt(10)
 	local has_outfit = pl:OutfitInfo()
 	dbgn(7,"setskin",pl,n,has_outfit and "" or "NO OUTFIT?")

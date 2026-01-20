@@ -26,7 +26,7 @@ setmetatable(sql,{__call=function(self,query,...)
 		query = query:format(unpack(t))
 	end
 	local ret = sql.Query(query)
-	
+
 	assert(ret~=true,'uuuhoh')
 	if ret == false then
 		return nil,sql.LastError()..' (Query: '..query..')'
@@ -42,7 +42,7 @@ local escape=sql.SQLStr
 local function gen_datefunc(fname)
 	local beginning = "SELECT "..fname.."("
 	local function func(...)
-		
+
 		local mods = {...}
 		for k,v in next,mods do
 			mods[k]=isnumber(v) and v or escape(v)
@@ -53,11 +53,11 @@ local function gen_datefunc(fname)
 		ret = ret and ret[1]
 		ret = ret and ret.x
 		ret = ret and ret~="NULL" and ret
-		
+
 		return ret
-		
+
 	end
-	
+
 	sql[fname]=func
 end
 
@@ -66,10 +66,10 @@ gen_datefunc 'time'
 gen_datefunc 'datetime'
 gen_datefunc 'julianday'
 gen_datefunc 'strftime'
-	
-	
-	
-	
+
+
+
+
 
 
 local mt = {}
@@ -100,7 +100,7 @@ function mt:drop()
 end
 function mt:insert(kv,or_replace)
 	local name = getmetatable(self).name
-	
+
 	local keys,values={},{}
 	local i=0
 	for k,v in pairs(kv) do
@@ -112,7 +112,7 @@ function mt:insert(kv,or_replace)
 		or isstring(v) and sql.SQLStr(v)
 		or error"Invalid input"
 	end
-	
+
 	local a,b = sql(("INSERT %sINTO %s (%s) VALUES (%s)"):format(or_replace and "OR REPLACE " or "",name,table.concat(keys,", "),table.concat(values,", ")))
 	if a==true then
 		return tonumber(sql.LastRowID())
@@ -137,7 +137,7 @@ function mt:coercer(a,...)
 end
 function mt:select(vals,extra,...)
 	local name = getmetatable(self).name
-	
+
 	return self:coercer(self:sql(("SELECT %s FROM %s %s"):format(vals,name,extra or ""),...))
 end
 
@@ -177,12 +177,12 @@ function mt:select1(...) return firstval(self:select(...)) end
 function mt:sql(a,...)
 	local t = {...}
 	local name = getmetatable(self).name
-	
+
 	for k,v in next,t do
 		local mt = istable(v) and getmetatable(v)
 		if mt and mt.name then t[k] = mt.name end
 	end
-	
+
 	return sql(a,unpack(t))
 end
 function mt:sql1(...) return firstval(self:sql(...)) end
@@ -229,13 +229,13 @@ end
 
 function mt:migrate(cb)
 	local info = getmetatable(self)
-	
+
 	local name = info.name
 	local _ver = (info._ver or 0) + 1
 	info._ver = _ver
-	
+
 	if info._migrate_errors then return nil,'migration errors' end
-	
+
 	local table_version = read_table_version(name)
 	if table_version == nil then
 		return self
@@ -246,21 +246,21 @@ function mt:migrate(cb)
 	if _ver <= table_version then
 		return self
 	end
-	
+
 	local ok,ret = xpcall(cb,debug.traceback,self,name)
-	
+
 	if not ok then
 		ErrorNoHalt(ret..'\n')
 		info._migrate_errors = true
 		return nil,'migration errors'
 	end
-	
+
 	if ret==false then
 		return self
 	end
-	
+
 	tablevers:update("ver = %d WHERE name = %s",_ver,name)
 	MsgN("Upgraded ",name," to version ",_ver)
-	
+
 	return self
 end

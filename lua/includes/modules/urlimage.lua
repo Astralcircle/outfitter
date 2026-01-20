@@ -1,5 +1,5 @@
 if SERVER then
-	AddCSLuaFile() 
+	AddCSLuaFile()
 	return
 end
 
@@ -18,9 +18,9 @@ function getDebug()
 	return inDebug
 end
 
-function dbg(...) 
+function dbg(...)
 	if not inDebug then return end
-	Msg"[UrlImg] "print(...) 
+	Msg"[UrlImg] "print(...)
 end
 
 function DBG(...) Msg"[UrlImg] "print(...) end
@@ -51,7 +51,7 @@ local db
 function db_init()
 	local _db = assert(sql.obj("urlimage"))
 	assert(_db.migrate,"Please upgrade urlimage dependencies")
-	
+
 	_db=assert(_db:create([[
 			`url`		TEXT NOT NULL CHECK(url <> '') UNIQUE,
 			`ext`		TEXT NOT NULL CHECK(ext = 'vtf' OR ext = 'png' OR ext = 'jpg'),
@@ -101,10 +101,10 @@ end
 function get_cache_info()
 	if not db then return nil,'nodb' end
 	return {
-		
+
 		count = tonumber(db:select('count(*) as count')[1].count or -1),
 		bytes = db:select('sum(file_size) as file_size')[1].file_size or -1,
-		
+
 	}
 end
 
@@ -154,7 +154,7 @@ function record_validate(r)
 	if not istable(r) then r,err = get_record(r) end
 	dbg("record_validate()",r,r and r.url or r.fileid,err)
 	if not r or not r.w or r.w==0 then return false end
-	
+
 	return r and file.Exists(FPATH(r.fileid,r.ext),'DATA') and r
 end
 
@@ -182,7 +182,7 @@ function FPATH(a,ext,open_as)
 		a=a..'_vmt'
 		ext="txt"
 	end
-	
+
 	local ret =("%s/%s%s%s%s%s"):format(BASE,tostring(a),
 		ext and "." or "",
 		ext or "",
@@ -202,7 +202,7 @@ function Material(fileid, ext, isSurface, pngParameters)
 	dbg("Material()",fileid,ext,pngParameters)
 	local path = ToMaterialPath(fileid,ext )
 	local a,b
-	
+
 	if ext == 'vtf' or ext == 'VTF' then
 		path = ToMaterialPath(fileid)
 		local matid = "uimgg".. fileid .. (isSurface and "surface" or "render")
@@ -226,10 +226,10 @@ function Material(fileid, ext, isSurface, pngParameters)
 		dbg("_G.Material()",("%q"):format(path),pngParameters)
 		a,b = _G.Material(path,pngParameters)
 	end
-	
+
 	-- should no longer be needed, if it even works
 	--if a then a:ReloadTexture() end
-	
+
 	return a,b,path,matid
 end
 
@@ -247,9 +247,9 @@ end
 local delete_record delete_record = function(record)
 	dbg("delete_record()",record)
 	if istable(record) then
-		
+
 		if next(record)==nil then return 0 end
-		
+
 		if record[1] then
 			local aggr = 0
 			for k,record in next,record do
@@ -270,7 +270,7 @@ end
 
 function delete_fileid(fileid,ext)
 	dbg("delete_fileid()",fileid,ext)
-	
+
 	local deleted = false
 	local function D(path,place)
 		if file.Exists(path,place) then
@@ -279,7 +279,7 @@ function delete_fileid(fileid,ext)
 			return deleted
 		end
 	end
-	
+
 	if ext then
 		D(FPATH(fileid,ext),'DATA')
 	end
@@ -287,7 +287,7 @@ function delete_fileid(fileid,ext)
 	D(FPATH(fileid,'jpg'),'DATA')
 	D(FPATH(fileid,'png'),'DATA')
 	D(FPATH(fileid,'vtf'),'DATA')
-	
+
 	return deleted
 end
 
@@ -307,10 +307,10 @@ function read_image_dimensions(fh,fmt)
 	dbg("read_image_dimensions()",fh,fmt)
 	local reader = fmt=='png' and PNG or fmt=='jpg' and JPG or fmt=='vtf' and VTF
 	if not reader then return nil,'No reader for format: '..tostring(fmt) end
-	
+
 	local w,h
 	local t = reader(fh)
-	
+
 	w = t.width
 	h = t.height
 	if not w or not h then
@@ -359,7 +359,7 @@ function FixupURL(url)
 		end
 
 	end
-	
+
 	return url
 end
 
@@ -394,9 +394,9 @@ end
 -- Returns: mat,w,h
 -- Returns: false = processing, nil = error
 function GetURLImage(url, data, isSurface)
-	
+
 	url = FixupURL(url)
-	
+
 	local cached = cache[url]
 	if cached then
 		if cached.processing then
@@ -410,17 +410,17 @@ function GetURLImage(url, data, isSurface)
 			error(cached.error)
 		end
 	end
-	
+
 	-- find if record exists --
-	
+
 	cached = {error = "failure"}
 	cache[url] = cached
-	
+
 	local cached_record = get_record(url)
 	if cached_record then
-		
+
 		assert(next(cached_record)~=nil)
-		
+
 		if record_validate(url) then
 			record_use(cached_record.fileid)
 			cached.record = cached_record
@@ -430,65 +430,65 @@ function GetURLImage(url, data, isSurface)
 			assert(delete_record(url))
 		end
 	end
-	
+
 	-- it's a new url --
 	dbg("Fetching",url)
-	
+
 	local function fail(err)
 		delete_record(url)
 		cached.processing = false
 		cached.error = tostring(err)
 		dbg("Fetch failed for",url,": "..cached.error)
 	end
-	
+
 	local function fetched(data,len,hdr,code)
-		
+
 		dbg("fetched()",url,string.NiceSize(len),code)
-		
+
 		if code~=200 then
 			return fail(code)
 		end
 		if len<=8 or len>1024*1024*25 then -- 26MB
 			return fail'invalid filesize'
 		end
-		
+
 		local ext = data_format(data)
 		if not ext then
 			return fail'unknown format'
 		end
-		
+
 		-- build a new record --
-		
+
 		local fileid = assert(new_record(url,ext))
 		local nodb
-		
-		if not fileid then 
+
+		if not fileid then
 			nodb = true
 			fileid = get_uid()
 		end
-		
+
 		assert(fileid)
-		
+
 		local record = {fileid = fileid}
-		
+
 		fwrite(fileid,ext,data) data = nil
 		local fh = fopen(fileid,ext)
-		
+
 		local w,h = read_image_dimensions(fh,ext)
 		fh:Close()
 		if not w then return fail(h) end
-		
+
 		if not nodb then
 			assert(update_dimensions(fileid,w,h))
 			assert(update_size(fileid,len))
-				
+
 			-- We don't have to build the record manually, we can just get it again
 			record = assert(get_record(url))
-			
+
 			assert(record)
-			
+
 			cached.record = record
-			
+
 		else
 			record.url = url
 			record.ext = 		ext
@@ -500,26 +500,26 @@ function GetURLImage(url, data, isSurface)
 			record.fileid = fileid
 			cached.record = record
 		end
-	
+
 		if not record_validate(cached.record) then
 			return fail'record_validate()'
 		end
-			
+
 		if not nodb then
 			-- we now have some sort of record, so let's use it so it's top of LRU
 			record_use(fileid,true) -- maybe remove?
 		end
-			
+
 		cached.processing = false
 		remove_error(cached)
-		
-		
+
+
 	end
 	URLFetchHead(url,function(h,err)
 		if h then
 			local sz = HeadContentSize(h)
 			if sz and tonumber(sz) then
-				
+
 				if tonumber(sz)>15*1000*1000 then
 					return fail'filesize'
 				end
@@ -527,13 +527,13 @@ function GetURLImage(url, data, isSurface)
 		else
 			dbg("Head query failed",err)
 		end
-		http.Fetch(url,fetched,fail)	
+		http.Fetch(url,fetched,fail)
 	end)
-	
+
 	cached.processing = true
-	
+
 	return false
-	
+
 end
 
 local lastFrameCalled = -1
@@ -552,31 +552,31 @@ function URLImage(url, data)
 		if frameCount > 18 then
 			if not errored then
 				errored = true
-				if not IKNOWWHATIMDOING then 
+				if not IKNOWWHATIMDOING then
 					ErrorNoHalt("URLImage called every frame, you must keep a reference to the result of URLImage, url="..tostring(url))
 					debug.Trace()
 				end
 			end
 		end
-	
+
 	elseif lastFrameCalled ~= fn then
 		frameCount = 0
 	end
 	lastFrameCalled=fn
-	
+
 	local mat,w,h = GetURLImage(url, data, true)
 	dbg("URLImage",fn,url,mat,w)
-	
+
 	local function setmat()
 		surface.SetMaterial(mat)
 		return w,h, mat
 	end
-	
+
 	if mat then
 		dbg("URLImage",url,"instant mat",mat)
 		return setmat
 	end
-	
+
 	local trampoline trampoline = function()
 		mat,w,h = GetURLImage(url, data, true)
 		if not mat then
@@ -584,13 +584,13 @@ function URLImage(url, data)
 				trampoline = function() return mat,w,h end
 				DBG("URLImage failed for ",url,": ",w,h)
 			end
-			
+
 			return mat
 		end
 		trampoline = setmat
 		return setmat()
 	end
-	
+
 	local function return_trampoline()
 		return trampoline()
 	end
@@ -601,7 +601,7 @@ local WTF=function()end
 
 -- Only start downloading when first called
 function LazyURLImage(url, data)
-	local cb 
+	local cb
 	cb = function(...)
 		cb = WTF
 		cb = surface.URLImage(url, data)
@@ -622,7 +622,7 @@ function URLMaterial(url, data)
 		if frameCount > 18 then
 			if not errored then
 				errored = true
-				if not IKNOWWHATIMDOING then 
+				if not IKNOWWHATIMDOING then
 					ErrorNoHalt("URLMaterial called every frame, you must keep a reference to the result of URLMaterial, url="..tostring(url))
 					debug.Trace()
 				end
@@ -632,19 +632,19 @@ function URLMaterial(url, data)
 		frameCount = 0
 	end
 	lastFrameCalled=fn
-	
-	
+
+
 	local mat,w,h = GetURLImage(url, "vertexlitgeneric " .. (data or ""), false)
 	local function setmat()
 		render.SetMaterial(mat)
 		return w,h, mat
 	end
-	
+
 	if mat then
 		dbg("URLImage",url,"instant mat",mat)
 		return setmat
 	end
-	
+
 	local trampoline trampoline = function()
 		mat,w,h = GetURLImage(url, "vertexlitgeneric " .. (data or ""), false)
 		if not mat then
@@ -652,18 +652,18 @@ function URLMaterial(url, data)
 				trampoline = function() return mat,w,h end
 				DBG("URLMaterial failed for ",url,": ",w,h)
 			end
-			
+
 			return mat
 		end
 		trampoline = setmat
 		return setmat()
 	end
-	
+
 	local function return_trampoline()
 		return trampoline()
 	end
 	return return_trampoline
-	
+
 end
 
 surface.URLImage = URLImage
@@ -714,7 +714,7 @@ local test2 = surface.URLImage "http://g1.metastruct.net:2095/jpg.jpg?c=dqd"
 local test3 = surface.URLImage "http://g1.metastruct.net:2095/vtf.vtf?c=qdq"
 hook.Add("DrawOverlay","a",function()
 	surface.SetDrawColor(255,255,255,255)
- 
+
 	local w,h = test1()
 	if w then
 		--print(w)
@@ -729,4 +729,4 @@ hook.Add("DrawOverlay","a",function()
 		surface.DrawTexturedRect(2+(w or 0)+(w1 or 0),0,w2,h2)
 	end
 end)
- 
+

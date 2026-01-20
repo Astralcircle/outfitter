@@ -5,22 +5,22 @@ end
 
 local Tag="isdormant"
 
-	
+
 --[[
 hook.Add("HUDPaint",Tag,function()
 	local x,y=128,128
 	surface.SetFont"BudgetLabel"
-	
+
 	local t=player.InPVS()
-	
+
 	local sw = ScrW()
-	
+
 	for i,pl in next, player.GetAll() do
-		
+
 		local txt=pl:Name()
 		local tw,th = surface.GetTextSize(txt)
 		local tx,ty=sw-tw-16,y+th*i
-		
+
 		surface.SetTextPos(tx,ty)
 		if pl:InPVS() then
 			surface.SetTextColor(255,244,244,111)
@@ -28,9 +28,9 @@ hook.Add("HUDPaint",Tag,function()
 			surface.SetTextColor(111,133,111,155)
 		end
 		surface.DrawText(txt)
-	
+
 	end
-	
+
 end)]]
 
 local fn=0

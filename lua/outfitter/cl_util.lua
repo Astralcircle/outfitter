@@ -27,7 +27,7 @@ function Fullupdate()
 		UIFullupdate()
 		LocalPlayer():ConCommand("record removeme",true)
 		RunConsoleCommand'stop'
-		
+
 	end)
 end
 
@@ -59,7 +59,7 @@ end
 --TODO: Make outfitter mount all after enabling?
 outfitter_fix_error_players = CreateClientConVar("outfitter_fix_error_players","1",true,true)
 cvars.AddChangeCallback("outfitter_fix_error_players",function(cvar,old,new)
-	
+
 end)
 
 do
@@ -93,9 +93,9 @@ do
 	function CanPlaySounds()
 		local ok = outfitter_sounds:GetBool()
 		if not ok then return ok end
-		
+
 		if GetElapsedInteractive()<30 then return false end
-		
+
 		return ok
 	end
 end
@@ -123,7 +123,7 @@ do
 		LocalPlayer():SetPredictable(state)
 	end
 end
-	
+
 do
 	-- -1: server preference
 	-- 0: force disable distance check
@@ -139,12 +139,12 @@ do
 		end
 		return ServerSuggestDistance()
 	end
-	
+
 	function GetDistance()
 		local d = outfitter_distance:GetFloat()
 		if ShouldDistance() then return d>0 and d end
 	end
-	
+
 	function VisibleFilter(pl1,pl2)
 		local pos1,pos2 = pl1:GetPos(),pl2:GetPos()
 		local dist = GetDistance()
@@ -170,21 +170,21 @@ do
 		highperf = highperf<0 and 0 or highperf
 		assert(highperf < 12,"HIGHPERF FAIL")
 		local ishigh = highperf>0
-		
+
 		if ishigh~=washigh and refresh_all then
 			RefreshPlayers()
 		end
 	end
-	
+
 	hook.Add("RenderScene",Tag..'_highperf',function()
 		prehighperf=false
 		hook.Remove("RenderScene",Tag..'_highperf')
 		dbgn(2,'Stopping forced highperf mode',IsHighPerf())
 	end)
-	
+
 	function coMinimizeGarbage()
 		for i=1,2048 do
-			if collectgarbage('step',math.ceil(i^2)) then 
+			if collectgarbage('step',math.ceil(i^2)) then
 				local steps_done = (i+1)^2-1
 				return steps_done
 			end
@@ -192,7 +192,7 @@ do
 		end
 		return 2049^2-1
 	end
-	
+
 end
 
 --TODO
@@ -206,7 +206,7 @@ end
 --TODO
 do
 	local function proc(data)
-		
+
 		if istable(data) then data=table.concat(data,"\n") end
 
 		local t= {}
@@ -227,10 +227,10 @@ do
 		return blocklist
 	end
 	function IsTitleBlocked(title)
-		
+
 		if not AllowNSFW() and title:lower():find"nsfw" then
 			return true
-		end 
+		end
 
 		for _,l in pairs(blocklist) do
 			if title:lower():find(l,1,true) then
@@ -330,9 +330,9 @@ do
 end
 
 do
-	
+
 	-- TODO: OnPlayerVisible calling
-	
+
 	local outfitter_friendsonly = CreateClientConVar("outfitter_friendsonly","0",true)
 
 	cvars.AddChangeCallback("outfitter_friendsonly",function(cvar,old,new)
@@ -344,11 +344,11 @@ do
 
 	function IsFriendly(pl)
 		if not outfitter_friendsonly:GetBool() then return true end
-		
+
 		if pl.IsFriend then
 			return LocalPlayer():IsFriend(pl)
 		end
-		
+
 		local fs = pl:GetFriendStatus()
 		if fs=="friend" then return true end
 		return false
@@ -369,7 +369,7 @@ end
 outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 
 -- Model enforcing
-	
+
 	-- ragdoll model
 
 	local function Enforce(rag)
@@ -377,10 +377,10 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 		if mdl then
 			--TODO: not having this causes crashes?
 			rag:InvalidateBoneCache()
-			
+
 			rag:SetModel(mdl)
 			rag:InvalidateBoneCache()
-			
+
 		end
 	end
 
@@ -388,10 +388,10 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 	function ThinkEnforce_DeathRagdoll()
 		for rag,count in next,enforce_models do
 			if rag:IsValid() and count>0 then
-				
+
 				enforce_models[rag] = count - 1
 				Enforce(rag)
-				
+
 			else
 				enforce_models[rag] = nil
 			end
@@ -414,42 +414,42 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 		local cached=cache[mdl]
 		if cached~=nil then return cached end
 		cache[mdl] = false
-		
+
 		local sz = file.Size(mdl:gsub("%.mdl$",'.phy'),'GAME')
 		cache[mdl]=cached
-		
+
 		if sz and sz>100*1000 then
 			cached=true
 		end
 		cache[mdl]=cached
-		
+
 		return cached
 	end
-	
+
 	function OnDeathRagdollCreated(rag,pl)
 		local mdl = pl:GetEnforceModel()
 		if not mdl then return end
-		
-		if BadRagdoll(mdl) then 
+
+		if BadRagdoll(mdl) then
 			dbgn(2,'Bad ragdoll',mdl)
 			if not IsUnsafe() then
 				return
 			end
 		end
-		
+
 		local mdlr = rag:GetModel()
 		local mdlp = pl:GetModel()
-		
+
 		local hasenforced   = mdlr==mdl
 		local isplyenforced = mdlp==mdl
 		dbgn(2,"DeathRagdollEnforce",pl,rag,mdl,hasenforced and ("ENFORCED RAG: "..tostring(mdlr)) or "" ,isplyenforced and "" or ("NOT ENFORCED PLY: "..tostring(mdlp)) )
-		
+
 		rag.enforce_model = mdl
 		enforce_models[rag] = 8
 		Enforce(rag)
-		
+
 		rag.RenderOverride=DeathRagdoll_RenderOverride
-		
+
 	end
 
 
@@ -469,10 +469,10 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 	function ThinkEnforce()
 		for pl,count in next,enforce_models do
 			if pl:IsValid() and count>0 then
-				
+
 				enforce_models[pl] = count - 1
 				Enforce(pl)
-				
+
 			else
 				enforce_models[pl] = nil
 			end
@@ -485,37 +485,37 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 		enforce_models[pl] = 34
 		Enforce(pl)
 	end
-	
-	
+
+
 	-- Set or unset actual model to be enforced clientside
 	--TODO: Check if loaded, if not: Refine so that the model is parsed for materials, load materials and then enforce model. less lag!
 	function Player.EnforceModel(pl,mdl,nocheck)
 		dbg("EnforceModel",pl,mdl or "UNENFORCE")
-		
+
 		if not mdl then
 			if pl.original_model then
 				pl:SetModel(pl.original_model)
 				pl.original_model = nil
 			end
 			pl.enforce_model = nil
-				
+
 			-- need to fullupdate or it doesn't reset either
 			if pl==LocalPlayer() then
 				FixLocalPlayerAnimations(true)
 			end
-			
+
 			return true
 		end
-		
+
 		if not nocheck then
 			local exists = HasMDL(mdl)
 			if not exists then return false,"invalid" end
 		end
-		
+
 		local curmdl = pl:GetModel()
 		local curenforce = pl.enforce_model
 		local origmdl = pl.original_model
-		
+
 		if not origmdl then
 			if not curmdl or curmdl=="" or curmdl == "models/error.mdl" or curmdl == "models/player.mdl" then
 				dbg("EnforceModel","invalid GetModel",curmdl)
@@ -523,20 +523,20 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 			end
 			pl.original_model = curmdl
 		end
-		
+
 		pl.enforce_model = mdl
-		
+
 		StartEnforcing(pl)
-		
+
 		if pl==LocalPlayer() and curmdl ~= mdl then
 			LazyFullupdate(mdl)
 			if pl:GetNWBool("IsListenServerHost",false) or not mdl then
 				FixLocalPlayerAnimations(true)
 			end
 		end
-		
+
 		return true
-		
+
 	end
 
 	function Player.GetEnforceModel(pl,mdl)
@@ -545,14 +545,14 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 
 	function OnPlayerInPVS(pl)
 		if not pl.enforce_model then return end
-		
+
 		local orig = pl.original_model
 		local neworig = pl:GetModel()
 		-- pl.original_model = neworig
 		dbgn(2,"OnPlayerInPVS","enforce",pl,pl.enforce_model,"orig",orig,orig==neworig)
 		StartEnforcing(pl)
 	end
-	
+
 	--TODO: REVISIT (Single frame spazzing on local player wear)
 	local recursing
 	local localpl
@@ -561,17 +561,17 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 		if p~=localpl then
 			return
 		end
-		
+
 		if recursing then return end
 		recursing=true
-					
+
 			Enforce(p)
 			--p:DrawModel()
-		
+
 		recursing=false
 		--return true
 	end)
-	
+
 	-- Between Think and This is where the player gets reset to original model for some reason, every think
 	local recursing
 	hook.Add("PlayerTick",Tag,function(p)
@@ -579,58 +579,58 @@ outfitter_maxsize = CreateClientConVar("outfitter_maxsize","60",true)
 		if p~=localpl then
 			return
 		end
-		
+
 		if recursing then return end
 		recursing=true
-					
+
 			Enforce(p)
-		
+
 		recursing=false
 	end)
 
 function TestLZMA(fpath)
 	-- if IsUGCFilePath(fpath) -- TODO
-	
+
 	local f = file.Open(fpath,'rb','MOD')
 
 	if not f then
 		return nil,"file"
 	end
-	
+
 	local dat = f:Read(14)
 	f:Close()
-	
+
 	if not dat or #dat<14 then return false,'size' end
-	
+
 	local decompressed_size,dict_size,props = util.DecompressInfo(dat)
 	if not decompressed_size then return decompressed_size,dict end
 	if decompressed_size > 1024*1024*512 then
 		return nil,'oversize'
 	end
-	
+
 	--TODO: Check 2^n and 2^n + 2^(n-1)
 	-- https://svn.python.org/projects/external/xz-5.0.3/doc/lzma-file-format.txt
-	
+
 	return true
-	
+
 end
 function GMABlacklist(fpath,wsid)
 	assert(fpath)
 
 	local f = file.Open(fpath,'rb','MOD')
 	dbg("GMABlacklist",fpath,f and "" or (IsUGCFilePath(fpath) and "UGC, SKIP" or "INVALIDFILE"))
-	
+
 	if not f then
 		if IsUGCFilePath(fpath) then return true,'file' end -- Can no longer access gma data
 		return nil,"file"
 	end
-	
+
 	local gma,err = gmaparse.Parser(f)
 	if not gma then return nil,err end
 
 	local ok ,err = gma:ParseHeader()
 	if not ok then return nil,err end
-	
+
 
 	local paths = {}
 	local check_vtfs = {}
@@ -642,7 +642,7 @@ function GMABlacklist(fpath,wsid)
 		end
 		local path = entry.Name
 		assert(path)
-		
+
 		paths[#paths+1] = path:lower()
 		if path:Trim():sub(-4):lower()=='.vtf' then
 			--print(path,entry.Offset)
@@ -650,41 +650,41 @@ function GMABlacklist(fpath,wsid)
 			check_vtfs[entry.Offset] = path
 		end
 	end
-	
+
 	local endheader = f:Tell()
-	
+
 	if not next(check_vtfs) then dbgn(3,"CheckVTF","none found??") end
-	
+
 	for offset,path in next, check_vtfs do
 		dbgn(2,"CheckVTF",path)
-		
+
 		if not gma:SeekToFileOffset(offset) then return nil,'seekfail' end
-		
+
 		local dat, err = file.ParseVTF(f)
-		if not dat then 
+		if not dat then
 			dbge("GMABlacklist","ParseVTF",path,wsid,"could not parse",err)
 		elseif dat.width>4096 or dat.height>4096 then
 			dbge("GMABlacklist","ParseVTF",wsid,"oversize")
 			return nil,'oversize vtf'
 		end
 	end
-	
+
 	for i=1,#paths do
 		local path = paths[i]
-		
+
 		--Check 1: modules
 		if path :find("includes",4,true) and path:gsub("\\","/"):gsub("/./","/"):gsub("/./","/"):gsub("/+","/"):find("lua/includes/",1,true) then
 			return nil,"includes"
 		end
-		
+
 		--Check 2
 		-- Model overrides / script overrides / config overrides / etc
 
-		
+
 	end
-	
+
 	return true
-	
+
 end
 
 
@@ -695,7 +695,7 @@ function GMAParseModels(gma)
 		local entry,err = gma:EnumFiles()
 		if not entry then
 			if err then
-				dbge("GMAParseModels",err) 
+				dbge("GMAParseModels",err)
 				return nil,err
 			end
 			break
@@ -703,7 +703,7 @@ function GMAParseModels(gma)
 		local path = entry.Name
 		local ext = path:sub(-4):lower()
 		local path_extless = path:sub(1,-5):lower()
-		
+
 		if ext=='.mdl' then
 			mdls[#mdls+1] = table.Copy(entry)
 		elseif ext=='.vvd' then
@@ -721,10 +721,10 @@ end
 function FileListParseModels(files)
 	local mdls,vvds,mdlfiles,phys = {},{},{},{}
 	for _,path in pairs(files) do
-	
+
 		local ext = path:sub(-4):lower()
 		local path_extless = path:sub(1,-5):lower()
-		
+
 		if ext=='.mdl' then
 			mdls[#mdls+1] = {Name=path,path=path,nogma=true}
 		elseif ext=='.vvd' then
@@ -767,7 +767,7 @@ function CheckPHY(gma,phys,path_extless)
 
 	local data = phys[path_extless..'.phy']
 	if not data then return end
-	
+
 	--if phy_size then
 	--	if not IsUnsafe() and phy_size>128*1000 then
 	--		return false,'filesize'
@@ -781,7 +781,7 @@ function CheckPHY(gma,phys,path_extless)
 end
 
 function CheckVVD(gma,vvds,path_extless,path_fd)
-	-- validate VVD vertex count 
+	-- validate VVD vertex count
 	local vvd_offset = vvds[path_extless..'.vvd'] or vvds[path_extless..'.VVD']
 	if vvd_offset then
 		if gma and not gma:SeekToFileOffset(vvd_offset) then return nil,"seekfail" end
@@ -826,9 +826,9 @@ function GMAPlayerModels(fpath)
 	assert(fpath)
 	local f = file.Open(fpath,'rb','MOD')
 	dbgn(2,"GMAPlayerModels pre",fpath,f and "" or (IsUGCFilePath(fpath) and "UGC, SKIP" or "INVALIDFILE"))
-	
+
 	local gma,files,err
-	if f then 
+	if f then
 		gma,err = gmaparse.Parser(f)
 		if not gma then return nil,err end
 	else
@@ -837,19 +837,19 @@ function GMAPlayerModels(fpath)
 			return nil,err
 		end
 	end
-	
+
 	if gma then
 		local ok ,err = gma:ParseHeader()
 		if not ok then return nil,err end
 	end
-	
+
 	local modellist,vvds,mdlfiles,phys
 	if gma then
-		modellist,vvds,mdlfiles,phys = GMAParseModels(gma) 
+		modellist,vvds,mdlfiles,phys = GMAParseModels(gma)
 	else
 		modellist,vvds,mdlfiles,phys = FileListParseModels(files)
 	end
-	
+
 	if not modellist then return nil,vvds end
 
 
@@ -863,33 +863,33 @@ function GMAPlayerModels(fpath)
 		potential = potential,
 		discards = discards
 	}
-	
+
 	--TODO: Check CRC?
 	--TODO: Check other files exist for mdl (otherwise might be anim for example)
-	
+
 	-- go through all model entries found from the gma
-	
-	
+
+
 	for k,entry in next,modellist do
 		local path = entry.Name
 		local path_extless = entry.Name:sub(1,-5)
-		
+
 		local cat = CategorizeBadModelPath(path)
-		
+
 		if gma and not gma:SeekToFileOffset(entry) then return nil,"seekfail" end
 		local path_fd = not gma and file.Open(path,'rb','GAME')
 		if not path_fd and not gma then
 			dbge("GMAParseModels","file should exist but doesn't",path_fd,path,fpath)
 			continue
 		end
-		
+
 		can = mdlfiles[path_extless]
 		local discard
 		local isplr,err,err2 = MDLIsPlayermodel(GMAORFILE(path_fd,gma and gma:GetFile(),entry.Size))
 		local hasAnims = err
 		local plerr
-		if isplr==nil then 
-			dbge("MDLIsPlayermodel",path_extless,err,err2) 
+		if isplr==nil then
+			dbge("MDLIsPlayermodel",path_extless,err,err2)
 			discard="MDLIsPlayermodel"
 		elseif not isplr then
 			plerr = err
@@ -899,12 +899,12 @@ function GMAPlayerModels(fpath)
 			plerr = 'physics'
 			entry.error_player = plerr
 		end
-		
+
 		if gma and not gma:SeekToFileOffset(entry) then return nil,"seekfail" end
 		local ishands,err,err2 = MDLIsHands(GMAORFILE(path_fd,gma and gma:GetFile(),entry.Size))
 		local handserr
-		if ishands==nil then 
-			dbge("MDLIsHands",path_extless,err,err2) 
+		if ishands==nil then
+			dbge("MDLIsHands",path_extless,err,err2)
 		elseif not isplr then
 			handserr = err
 			entry.error_hands = handserr
@@ -913,7 +913,7 @@ function GMAPlayerModels(fpath)
 			handserr = 'physics'
 			entry.error_hands = handserr
 		end
-		
+
 		-- TODO: fix non gma
 		if phys[path_extless] and gma then
 			local phy_ok,err = CheckPHY(gma,phys,path_extless)
@@ -922,11 +922,11 @@ function GMAPlayerModels(fpath)
 				discard = "phy"
 			end
 		end
-		
+
 		local vvd_ok,err = CheckVVD(gma,vvds,path_extless)
 		entry.vvd_ok = vvd_ok
 		entry.error_vvd = err
-		
+
 		if not vvd_ok then
 			discard = "vvd"
 			ishands = false
@@ -938,18 +938,18 @@ function GMAPlayerModels(fpath)
 			isplr = false
 		end
 		dbgn(2,"CategorizeModel",cat,isplr and "player" or ishands and "hands" or "unkn",path)
-		
-		discard = discard 
+
+		discard = discard
 			or plerr == 'nobones'
-			
-			or cat == 'arms' 
-			or cat == 'prop' 
-			or cat == 'animation' 
-			or cat == 'viewmodel' 
+
+			or cat == 'arms'
+			or cat == 'prop'
+			or cat == 'animation'
+			or cat == 'viewmodel'
 			or cat == 'worldmodel'
-		
+
 		entry.discard = discard
-		
+
 		if isplr then
 			playermodels[path]=entry
 		elseif ishands then
@@ -960,21 +960,21 @@ function GMAPlayerModels(fpath)
 			discards[path]=entry
 		end
 	end
-	
+
 	dbg("GMAPlayerModels",fpath,table.Count(playermodels),table.Count(potential),table.Count(hands))
 	if IsUnsafe() then
 		for k,v in next,potential do
 			playermodels[k]=v
 		end
 	end
-		
-	
+
+
 	local mdl_list = {}
 	for path,entry in next,playermodels do
-		mdl_list[#mdl_list+1] = entry -- entry.Name 
+		mdl_list[#mdl_list+1] = entry -- entry.Name
 	end
 	return mdl_list,extra
-	
+
 end
 
 --outfitter.EnforceHands("models/weapons/c_arms_timeshiftsoldier.mdl")
@@ -986,11 +986,11 @@ function ThinkFullupdate()
 		if util.IsValidModel(needmdl) then
 			dbg("Fullupdate","Became valid",needmdl,CurTime()-_twhen)
 			needmdl = nil
-			
+
 			FixLocalPlayerAnimations(true)
 		end
 	end
-	
+
 	local mdl = LocalPlayer():GetModel()
 	if mdl ~= omdl then
 		omdl=mdl
@@ -1002,7 +1002,7 @@ function ThinkFullupdate()
 			dbg("Fullupdate","not needed",mdl)
 		end
 	end
-	
+
 end
 
 
@@ -1027,9 +1027,9 @@ local function ElapsedThink()
 	local ft = FrameTime()
 	ft = ft>0.3 and 0.3 or ft
 	elapsed=elapsed+ft
-	
+
 end
-	
+
 local function Think()
 	ThinkEnforce()
 	ThinkEnforce_DeathRagdoll()
@@ -1050,15 +1050,15 @@ function CalcView(pl,pos,oang,fov)
 	local speedup = 20
 	local off = GetGUIInteractionOffset()
 	off = off and -off*speedup*math.pi*8
-		
+
 	local speedytime = RealTime()*speedup
-	
+
 	local t = (off and lastt or speedytime) + (off or 0)
 	lastt = off and lastt or speedytime
-	
+
 	t=( t )%360
 	local slowdown= math.sin(t/360*math.pi*2 +math.pi + math.pi*.1)*speedup*.80
-	
+
 	local ang = Angle(15, ((t - slowdown) + LocalPlayer():GetAngles().y)%360,0)
 	view.origin = pl:GetPos()+Vector(0,0,pl:OBBMaxs().z*.5) - ang:Forward()*65 - ang:Right()*20
 	view.fov = fov
@@ -1115,7 +1115,7 @@ hook.Add( "GUIMouseReleased", Tag, GUIMouseReleased )
 
 
 
-concommand.Add("outfitter_camera_toggle",function(a,b,c) if c[1] then ToggleThirdperson(tonumber(c[1])) else ToggleThirdperson() end end) 
+concommand.Add("outfitter_camera_toggle",function(a,b,c) if c[1] then ToggleThirdperson(tonumber(c[1])) else ToggleThirdperson() end end)
 
 ------------
 
@@ -1157,11 +1157,11 @@ function ValidateVVDVerts(f)
 		if do_close then f:Close() end
 		return ...
 	end
-		
+
 	local dat,err = ParseVVD(f)
-	
+
 	if not dat then return RETURN(nil,err) end
-	
+
 	local num = dat.numLODVertexes[1]
 	if num > 64534 --[[magic]] then return RETURN(false,'maxverts',num) end
 	return RETURN(true,num)
@@ -1173,7 +1173,7 @@ function DrawingDecals()
 end
 
 
-do 
+do
 	--TODO: skin, bodygroup, etc??
 	local HACKT=Tag.."_handshack"
 	local function hackt()
@@ -1183,7 +1183,7 @@ do
 		if not m then return end
 		h:SetModel(m)
 	end
-	
+
 	local oldmodel
 	local enforce,skin,bodygroup
 	local function PreDrawPlayerHands(ent)
@@ -1206,10 +1206,10 @@ do
 
 	function EnforceHands(mdl,_skin,_bodygroup)
 		enforce = mdl
-		
+
 		local t = {mdl=mdl,skin=skin,bodygroup=bodygroup}
 		LocalPlayer().outfitter_hands = t
-		
+
 		if enforce then
 			if not timer.Exists(HACKT) then
 				timer.Create(HACKT,5,0,hackt)
@@ -1229,21 +1229,21 @@ function MDLToUI(s)
 	if #s==0 then return s end
 	s=s:gsub("^models/player/","")
 	s=s:gsub("^models/","")
-	  
+
 	s=s:gsub("_([a-z])",function(a) return ' '..a:upper() end)
 	s=s:gsub("_"," ")
-	  
+
 	s=s:gsub("%.mdl","")
-	  
+
 	s=s:gsub("/([a-z])",function(a) return '/'..a:upper() end)
-	
+
 	local a,b = s:match'^(.+)/(.-)$'
 	if b then
 		s = ('%s ( %s )'):format(b,a)
 	end
-	
+
 	s=s:gsub("/",", ")
-	
+
 	return s
 end
 
@@ -1275,7 +1275,7 @@ do
 			end)
 			return ret
 		end,
-		
+
 	}
 	--timer.Simple(1,function() derma.RefreshSkins()  end)
 	setmetatable(vgui,{__index=_vgui})
@@ -1292,15 +1292,15 @@ local cache={}
 function AlreadyMounted(fpath,fd)
 	local cached = cache[fpath]
 	if cached~=nil then return cached end
-	
+
 	if not fpath then return nil, 'no filepath' end
 	local f = fd or file.Open(fpath, 'rb', 'MOD')
 	assert(not fd or f==fd)
-	if not f then 
+	if not f then
 		if IsUGCFilePath(fpath) then
 			return nil,'ugc'
 		end
-		return nil, "file" 
+		return nil, "file"
 	end
 	local gma, err = gmaparse.Parser(f)
 	if not gma then return nil, err end
@@ -1330,7 +1330,7 @@ function AlreadyMounted(fpath,fd)
 	if #paths == 0 then
 		return nil,'No files??'
 	end
-	
+
 	for i = 1, #paths do
 		local path = paths[i]
 		if not file.Exists(path,'workshop') then
@@ -1382,7 +1382,7 @@ function MountGMA(fpath,opt)
 		if not ok then
 			res,err = nil,res
 		end
-		
+
 		if res then
 			dbg("MountGMA","Not remounting",fpath)
 			return true,res

@@ -16,19 +16,19 @@ local function http_wrap(ok,err,okerr,...)
 end
 
 function co.post(url,data,hdr)
-	
+
 	local ok,err = co.newcb(),co.newcb()
 	http.Post(url,data,ok,err,hdr)
-	
+
 	return http_wrap(ok,err,co.waitone())
 
 end
 
 function co.fetch(url,hdr)
-	
+
 	local ok,err = co.newcb(),co.newcb()
 	http.Fetch(url,ok,err,hdr)
-	
+
 	return http_wrap(ok,err,co.waitone())
 
 end
@@ -57,14 +57,14 @@ do
 	local function runcbs(entry,...)
 		local ip,port = entry[1],entry[2]
 		local callbacks = cbs[ip] and cbs[ip][port]
-		
+
 		if not callbacks then return end
-		
+
 		cbs[ip][port]=nil
 		if not next(cbs[ip]) then
 			cbs[ip]=nil
 		end
-		
+
 		local ncallbacks = #callbacks
 		for i=1,ncallbacks do
 			local func = callbacks[i]
@@ -77,14 +77,14 @@ do
 		_sinfo = _sinfo or serverquery.getServerInfoWorker(function(ret,entry,err)
 			--print(">",ret,entry,err)
 			if ret then
-				
+
 				assert(entry,"entry missing??")
-			
+
 				runcbs(entry,entry)
-				
+
 				return
 			end
-			
+
 			if ret==false then
 				if entry==true then
 					return -- worker started
@@ -93,12 +93,12 @@ do
 				else
 					-- error
 					runcbs(entry,nil,err or "timeout",entry)
-					
+
 					return
-					
+
 				end
 			end
-		
+
 			if err then
 				ErrorNoHalt(tostring(err)..'\n')
 			end
@@ -114,18 +114,18 @@ do
 		end
 		assert(not ip:find(":",1,true))
 		assert(ip and port)
-		
+
 		local cb = co.newcb()
-		
+
 		cbs[ip] = cbs[ip] or {}
 		cbs[ip][port] = cbs[ip][port] or {}
 		local t = cbs[ip][port]
 		t[#t+1]=cb
-		
+
 		sinfo().add_queue(ip, port)
-		
+
 		return co.waitcb(cb)
-		
+
 	end
 
 	--co(function()
@@ -155,14 +155,14 @@ do
 	local function runcbs(entry,...)
 		local ip,port = entry[1],entry[2]
 		local callbacks = cbs[ip] and cbs[ip][port]
-		
+
 		if not callbacks then return end
-		
+
 		cbs[ip][port]=nil
 		if not next(cbs[ip]) then
 			cbs[ip]=nil
 		end
-		
+
 		local ncallbacks = #callbacks
 		for i=1,ncallbacks do
 			local func = callbacks[i]
@@ -175,14 +175,14 @@ do
 		_sinfo = _sinfo or serverquery.playerListFetcher(function(ret,entry,err)
 			--print(">",ret,entry,err)
 			if ret then
-				
+
 				assert(entry,"entry missing??")
-			
+
 				runcbs(entry,entry)
-				
+
 				return
 			end
-			
+
 			if ret==false then
 				if entry==true then
 					return -- worker started
@@ -191,12 +191,12 @@ do
 				else
 					-- error
 					runcbs(entry,nil,err or "timeout",entry)
-					
+
 					return
-					
+
 				end
 			end
-		
+
 			if err then
 				ErrorNoHalt(tostring(err)..'\n')
 			end
@@ -212,18 +212,18 @@ do
 		end
 		assert(not ip:find(":",1,true))
 		assert(ip and port)
-		
+
 		local cb = co.newcb()
-		
+
 		cbs[ip] = cbs[ip] or {}
 		cbs[ip][port] = cbs[ip][port] or {}
 		local t = cbs[ip][port]
 		t[#t+1]=cb
-		
+
 		sinfo().add_queue(ip, port)
-		
+
 		return co.waitcb(cb)
-		
+
 	end
 
 	--co(function()
@@ -235,7 +235,7 @@ local function shuffle( t )
     local rand = math.random
     local iterations = #t
     local j
-    
+
     for i = iterations, 2, -1 do
         j = rand(i)
         t[i], t[j] = t[j], t[i]
@@ -247,7 +247,7 @@ function co.dns(a,b)
 	local cb = co.newcb()
 	b=b or 'A'
 	http.ResolveDNS(a,b,cb)
-	
+
 	local ret,err = co.waitcb(cb)
 	if not ret then return nil,err end
 	if ret.errstr then
@@ -256,7 +256,7 @@ function co.dns(a,b)
 	if not ret[1] then
 		return ret
 	end
-	
+
 	shuffle(ret)
 	for _,v in next,ret do
 		if (b=='A' or b=='AAAA') and v.address then
@@ -268,7 +268,7 @@ function co.dns(a,b)
 		end
 	end
 	return true,ret
-	
+
 end
 --[[
 co(function()
@@ -306,11 +306,11 @@ function steamworks.coFileInfos(idlist)
 	for _,id in next,idlist do
 		t[id]=false
 	end
-	
+
 	for id,state in next,t do
 		steamworks.FileInfo(id,cb)
 	end
-	
+
 	local any
 	for id,state in next,t do
 		local _,data = co.waitone(cb)
@@ -322,7 +322,7 @@ function steamworks.coFileInfos(idlist)
 				any = true
 				t[id] = data
 			end
-			
+
 		end
 	end
 	return any and t
@@ -423,11 +423,11 @@ OnLocalPlayer(function(ent)
 end)
 
 function co.wait_player(pl) -- or player
-	
+
 	if pl and pl:IsValid() then return true end
-	
+
 	assert(pl~=NULL)
-	
+
 	if not pl then
 		if not localplayer then
 			while not localplayer do
@@ -441,25 +441,25 @@ function co.wait_player(pl) -- or player
 			return nil,"invalidplayer"
 		end
 	end
-	
+
 	local userid = pl_to_userid[pl]
 	if userid == nil then
 		return nil,"invalid"
 	end
-	
+
 	assert(userid>=0)
-	
+
 	local disconnected = player.HasDisconnected(userid)
-	
+
 	if disconnected then return false,"disconnected" end
-	
+
 	local t = waiters[userid] if t==nil then t = {} waiters[userid] = t end
-	
+
 	local cb = co.newcb()
 	t[#t+1]=cb
-	
+
 	return co.waitcb(cb)
-	
+
 end
 
 local function inv_1(a,...)
@@ -492,9 +492,9 @@ end
 function co.steamnick(sid64,timeout)
 	local res,err = GetPlayerName(sid64)
 	if res or (err and err ~= 'request') then return res,err end
-	
+
 	steamworks.RequestPlayerInfo(sid64)
-	
+
 	for i=0,timeout or 10,0.2 do
 		local res,err = GetPlayerName(sid64)
 		if res or (err and err ~= 'request') then return res,err end
@@ -507,9 +507,9 @@ end
 function co.steamnick_promise(sid64)
 	local res,err = GetPlayerName(sid64)
 	if res or (err and err ~= 'request') then return function() return res,err end end
-	
+
 	steamworks.RequestPlayerInfo(sid64)
-	
+
 	return function(timeout)
 		for i=0,timeout or 10,0.2 do
 			local res,err = GetPlayerName(sid64)
@@ -525,7 +525,7 @@ co(function()
 	local sid = LocalPlayer():SteamID64()
 	local nick,err = co.steamnick(sid)
 	print("me",sid,"\n\t",('%q'):format(tostring(nick)),err)
-	
+
 	local sid = tostring(os.time()%99999)
 	local nick,err = co.steamnick(sid)
 	print("invalidsid",sid,"\n\t",('%q'):format(tostring(nick)),err)

@@ -63,22 +63,22 @@ do
 		initialized = true
 		-- HACK: Make sure RunOnInit works even inside RunOnInit
 		local overflow = true
-	
+
 		for i = 1, #functions + 262140 do
 			local func = functions[i]
-	
+
 			if not func then
 				overflow = false
 				break
 			end
-	
+
 			xpcall(func, error_func)
 		end
-	
+
 		if overflow then
 			ErrorNoHalt("[WARN] RunOnInit hook list overflowed? ", #functions, "\n")
 		end
-	
+
 		functions = nil
 		hook.Remove("Initialize", "RunOnInitializeHelper")
 	end
@@ -125,7 +125,7 @@ if CLIENT then
 		if ent~=me then return end
 		assert(not initialized)
 		initialized = true
-		
+
 		for i = 1, #functions do
 			local func = functions[i]
 			xpcall(func, error_func, me)
@@ -141,22 +141,22 @@ if CLIENT then
 		if not isfunction(func) then
 			error("Expected function", 2)
 		end
-		
+
 		if not functions then
 			timer.Simple(0,function() func(LocalPlayer()) end)
 			return
 		end
-		
+
 		functions[#functions + 1] = func
 	end
 
 	util.OnLocalPlayer = util_OnLocalPlayer
 	if IsValid(LocalPlayer()) then
-		OnEntityCreated(LocalPlayer()) 
+		OnEntityCreated(LocalPlayer())
 	else
 		hook.Add("OnEntityCreated", "OnLocalPlayer", OnEntityCreated)
 		hook.Add("NetworkEntityCreated", "OnLocalPlayer", OnEntityCreated)
-		
+
 		timer.Simple(1, function()
 			if LocalPlayer():IsValid() and not initialized then
 				error_func"OnEntityCreated did not catch LocalPlayer??"
@@ -164,5 +164,5 @@ if CLIENT then
 			end
 		end)
 	end
-	
+
 end

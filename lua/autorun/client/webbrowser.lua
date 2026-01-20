@@ -334,7 +334,7 @@ function PANEL:_InjectScripts(browser)
 		setTimeout(function() {
 			document.documentElement.style.backgroundColor = 'white';
 		}, 0);
-		
+
 		setTimeout(function() {
 			  var elems = document.getElementsByTagName("a");
 				for (var i = 0; i < elems.length; i++) {
@@ -344,7 +344,7 @@ function PANEL:_InjectScripts(browser)
 					}
 				}
 		}, 0);
-		
+
 	]]
 	browser:QueueJavascript[[
 		function getLink() {
@@ -462,7 +462,7 @@ hook.Add("PlayerBindPress", 'webbrowser', function(pl, key, press)
 	if rec then return end
 	rec = true
 	local ret = hook.Run("PlayerBindPress", pl, key, press)
-	
+
 	if ret then
 		rec = false
 
@@ -471,9 +471,9 @@ hook.Add("PlayerBindPress", 'webbrowser', function(pl, key, press)
 
 	rec = false
 	local forceurl = hook.Run("WebBrowserF1")
-	
+
 	if forceurl == false then return end
-	
+
 	ShowPanel(forceurl)
 end)
 

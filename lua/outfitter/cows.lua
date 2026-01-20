@@ -12,7 +12,7 @@ function IsUGCFilePath(path)
 		-- TODO: better way to check for UGC?
 		return true
 	end
-	
+
 	return false
 end
 
@@ -53,7 +53,7 @@ local function steamworks_Download_work( fileid )
 	local path,fd
 	local cb
 	local done
-	
+
 	-- retry
 	for i=0,4 do
 		if path then break end
@@ -69,7 +69,7 @@ local function steamworks_Download_work( fileid )
 		local function cb2(a,b)
 			SafeRunHook("OutfitterDownloadUGCResult",fileid,a,b)
 			if done then return end
-			
+
 			dbg("DownloadUGC",fileid,instant==false and "" or "instant?","result",a,b)
 			if instant==nil then
 				path = a
@@ -97,7 +97,7 @@ local function steamworks_Download_work( fileid )
 	end
 
 	dbg("DownloadUGC",fileid,"returning",path,fd,instant and "<CACHED>" or "")
-	
+
 	return path,fd
 end
 
@@ -224,17 +224,17 @@ function coFetchWS(wsid,skip_maxsize)
 
 		local installed = fileinfo.installed
 		local disabled = fileinfo.disabled
-		
+
 		if fileinfo.banned then
 			dbge(wsid,"BANNED!?")
 			return SYNC(dat,cantmount(wsid,"banned"))
 		end
-		
+
 		if next(fileinfo.children or {}) then
 			dbg(wsid,"has dependencies, these will not be mounted")
 			--return SYNC(dat,cantmount(wsid,"dependencies"))
 		end
-		
+
 		if created<60*60*24*7 then
 			dbg(wsid,"WARNING: ONE WEEK OLD ADDON. NOT ENOUGH TIME FOR WORKSHOP MODERATORS.")
 			if IsParanoidMode(1) then
@@ -259,11 +259,11 @@ function coFetchWS(wsid,skip_maxsize)
 	if fileinfo.error and fileinfo.error ~="" then
 		return SYNC(dat,cantmount(wsid,"fileinfo: "..tostring(fileinfo.error)))
 	end
-	
+
 	if tonumber(fileinfo.size or 0)==0 or tonumber(fileinfo.size or 0)==0 then
 		return SYNC(dat,cantmount(wsid,"undownloadable"))
 	end
-	
+
 	local maxsz = outfitter_maxsize:GetFloat()
 	maxsz = maxsz*1000*1000
 
@@ -631,7 +631,7 @@ local function checkhttp(ok,ret,len,hdrs,retcode)
 	if retcode==404 then return nil,'not found' end
 	if retcode~=200 then return nil,"http error",retcode end
 	local size = hdrs["Content-Length"] and tonumber(hdrs["Content-Length"])
-	
+
 
 	local maxsz = outfitter_maxsize:GetFloat()
 	maxsz = maxsz*1000*1000
@@ -677,13 +677,13 @@ function coFetchGMA(download_info,pl,mdl)
 		end
 	end
 
-	
+
 	co.sleep(.1)
 
 	-- 2. then actually download the thing
 	SetUIFetching(filename,true,nil,true)
 	--dbgn(2,'NeedHTTPGMA','minimized garbage for download',coMinimizeGarbage())
-	local ok,data,len,hdrs,retcode = co.fetch( download_info_actual )	
+	local ok,data,len,hdrs,retcode = co.fetch( download_info_actual )
 	SetUIFetching(filename,false,not ok and ddata or retcode~=200 and "server returned an error" or nil,true)
 	if not ok then return nil,data or 'download failed' end
 
@@ -704,13 +704,13 @@ function coFetchGMA(download_info,pl,mdl)
 	file.CreateDir("cache/httpgma",'DATA')
 
 	local sha1 = util.SHA1(data)
-	
+
 	local path_DATA = ("cache/httpgma/%s.dat"):format(sha1)
 	file.Write(path_DATA,data)
 	data=nil
 	dbgn(2,'NeedHTTPGMA','minimized garbage after data discard',coMinimizeGarbage())
 	local path="data/"..path_DATA
-	
+
 	local ok,err = GMABlacklist(path)
 	if not ok and err=='notgma' and TestLZMA(path) then
 		local newpath,err = coDecompress(path)
@@ -779,7 +779,7 @@ function coFetchGMA(download_info,pl,mdl)
 				co.waittick()
 			end
 		end)
-		
+
 		fd:Close()
 
 		dbg("gma.rebuild_nolua",ret,err,err2)
@@ -792,7 +792,7 @@ function coFetchGMA(download_info,pl,mdl)
 			return
 		end
 	end
-	
+
 	if not path or path==true then return path end
 
 	local ret={path=path,sha1=sha1}
@@ -803,9 +803,9 @@ end
 
 function NeedHTTPGMA(download_info,pl,mdl)
 	if co.make(download_info,pl,mdl) then return end
-	
+
 	local data,err,err2,ok = coFetchGMA(download_info,pl,mdl)
-	
+
 	if not data then return data,err,err2 end
 	if not data.path then return nil,'nopath' end
 
