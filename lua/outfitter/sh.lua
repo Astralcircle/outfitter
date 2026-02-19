@@ -362,14 +362,14 @@ function InitCrashSys()
 	local CrashingTagv = Tag .. 'ing2v'
 
 	local function SAVE(t)
-		local s = json.encode(t)
+		local s = util.TableToJSON(t)
 		util.SetPData("0", Tag, s)
 	end
 
 	local function LOAD()
 		local s = util.GetPData("0", Tag, false)
 		if not s or s == "" or s == "nil" then return {} end
-		local ok,t = pcall(json.decode,s)
+		local ok,t = pcall(util.JSONToTable,s)
 		if not ok or not t then return {} end
 
 		return t
