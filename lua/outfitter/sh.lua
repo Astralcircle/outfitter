@@ -389,7 +389,7 @@ function InitCrashSys()
 		concommand.Add(Tag .. "_clear", function()
 			local n = table.Count(crashlist)
 			table.Empty(crashlist)
-			SAVE()
+			SAVE({})
 			chat.AddText("Cleared blacklist (had " .. n .. ")")
 		end)
 
