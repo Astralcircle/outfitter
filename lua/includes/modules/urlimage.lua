@@ -691,17 +691,7 @@ function do_purge()
 end
 
 local ok,err = xpcall(db_init,debug.traceback)
-
-if not ok then
-	ErrorNoHalt(err..'\n')
-end
-
-
 local ok2,err2 = xpcall(do_purge,debug.traceback)
-
-if not ok2 then
-	ErrorNoHalt(err2..'\n')
-end
 
 function GetStartupFailure()
 	return not ok and (err or "Unknown")
