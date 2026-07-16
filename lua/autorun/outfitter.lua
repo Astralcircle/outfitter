@@ -212,8 +212,6 @@ local function inc(str)
 	end
 end
 
-_M.json = inc 'json'		'sh'
-
 inc 'cl_util'	'cl'
 inc 'gma'		'sh'
 inc 'cl_hacks'	'cl'

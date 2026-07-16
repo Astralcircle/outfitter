@@ -374,7 +374,7 @@ for _,fn in next,flist do
 	local f = file.Open(fpath,'rb','GAME')
 	print(('%50s'):format(fn),MDLIsPlayermodel(f))
 	f:Close()
-	
+
 end--]]
 local t = { "", "", "", "", "" }
 
@@ -451,7 +451,7 @@ function InitCrashSys()
 	local CrashingTagv = Tag .. 'ing2v'
 
 	local function SAVE(t)
-		local s = json.encode(t)
+		local s = util.TableToJSON(t)
 		util.SetPData("0", Tag, s)
 	end
 
@@ -478,7 +478,7 @@ function InitCrashSys()
 		concommand.Add(Tag .. "_clear", function()
 			local n = table.Count(crashlist)
 			table.Empty(crashlist)
-			SAVE()
+			SAVE({})
 			chat.AddText("Cleared blacklist (had " .. n .. ")")
 		end, nil, "Clear the crash blacklist")
 

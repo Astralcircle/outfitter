@@ -86,22 +86,22 @@ end
 function PANEL:InjectScripts(browser)
 	--dbg("Injecting browser code",browser or "NOBROWSER")
 	browser:QueueJavascript [[
-		
+
 			function SubscribeItem() {
 				gmod.wssubscribe();
 			};
-			
+
 			setTimeout(function() {
 				function SubscribeItem() {
 					gmod.wssubscribe();
 				};
-			
+
 				var sub = document.getElementById("SubscribeItemOptionAdd");
 				if (sub) {
 					sub.innerText = "Select";
 				};
 			}, 0);
-			
+
 		]]
 end
 
@@ -879,7 +879,6 @@ function PANEL:Init()
 	b.DoClick = function() ToggleThirdperson() end
 	b:DockMargin(16, 2, 16, 1)
 	b:SetImage 'icon16/find.png'
-
 
 
 	--local b = Add('EditablePanel')

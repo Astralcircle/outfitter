@@ -186,12 +186,12 @@ function coFetchWS(wsid, skip_maxsize)
 				return SYNCWS(wsid, dat, cantmount(wsid, "blocked title"))
 			end
 			local ret = res[wsid] or true
-			
+
 			dbgn(8,"FetchWS","wsid=",wsid,"fetching=",dat,"ret=",ret)
 			return ret
 		elseif istable(dat) then
 			-- become a waiter
-			
+
 			dbgn(8,"FetchWS","wsid=",wsid,"fetching=",dat,"awaiting...")
 			if skip_maxsize then
 				skip_maxsizes[wsid] = true
