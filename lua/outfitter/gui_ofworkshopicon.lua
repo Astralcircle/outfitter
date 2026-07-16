@@ -54,14 +54,14 @@ function PANEL:Paint( w, h )
 
 
 	draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, 255 ) )
-
+	
 	if not self.errcheck then
 		self.errcheck = true
 		if self.Image and self.Image:IsError() then
 			self.errored = true
 		end
 	end
-
+	
 	if self.Image and not self.errored then
 		surface.SetMaterial( self.Image )
 	else

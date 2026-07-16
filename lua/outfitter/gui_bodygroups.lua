@@ -54,11 +54,11 @@ function PANEL:Init()
 	self.lbl = vgui.Create('DLabel',self,'description')
 	--self.lbl:Dock(FILL)
 	self.lbl:SetTextColor(Color(255,255,255,255))
-	self.lbl:SetFont("BudgetLabel")
+	self.lbl:SetFont("BudgetLabel")	
 	self:SetSpaceX( 2 )
 	self:SetSpaceY( 2 )
 	self:SetBorder( 2 )
-
+	
 	self.lbl:SetText"Radio buttons tester"
 	--self:SetLayoutDir( LEFT )
 	self.lbl.Paint=function(self,w,h)
@@ -76,20 +76,20 @@ function PANEL:SetText(t)
 	self.lbl:SetContentAlignment(5)
 	self.lbl:SetWide(8+self.lbl:GetWide())
 	self.lbl:SetTooltip(t)
-
+	
 	self:InvalidateLayout()
-
+	
 end
 
 function PANEL:AddOption(description,letter)
 	self.n=self.n or 0
 	self.n=self.n + 1
 	local n = self.n
-
+	
 	local pnl = vgui.CreateFromTable(radiobtn,self,'radiolist')
 	pnl.n=n
 	pnl.letter = letter
-
+	
 	pnl:SetTooltip(description)
 	pnl.d = description:sub(1,1)
 	pnl:DockMargin(n>1 and 2 or 1,1,1,1)
@@ -119,15 +119,15 @@ end
 vgui.Register('OFRadioBatton',PANEL,"DIconLayout")
 
 
-
-
+ 
+ 
 
 local vgui = GetVGUI()
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
 
 local PANEL={}
 function PANEL:Init()
@@ -150,7 +150,7 @@ function PANEL:Refresh()
 
 	self.skins = a:ParseSkins()
 
-	self:CreatePanels()
+	self:CreatePanels()	
 	self:InvalidateLayout()
 end
 
@@ -161,7 +161,7 @@ function PANEL:UpdateBG()
 			t[#t+1] = ("%s=%s"):format(v.name,v.n)
 		end
 	end
-
+	
 	RunConsoleCommand("outfitter_bodygroups_set",table.concat(t,","))
 end
 
@@ -175,11 +175,11 @@ function PANEL:CreatePanels()
 
 	-- skin
 	local r = self:Add("OFRadioBatton")
-	r.OnSelected=function(r,setskin_id)
+	r.OnSelected=function(r,setskin_id) 
 		RunConsoleCommand("outfitter_skin_set",tostring(setskin_id))
 		LocalPlayer().outfitter_skin = setskin_id
 	end
-
+	
 	r:SetText("#skin")
 	r:Dock(TOP)
 	r:SizeToContents()
@@ -187,7 +187,7 @@ function PANEL:CreatePanels()
 	for id,skindata in pairs(self.skins) do
 		r:AddOption(skindata[1][1],tostring(id-1))
 	end
-
+	
 	r:SetChecked(LocalPlayer().outfitter_skin or 1)
 
 	local divider = self:Add("EditablePanel")
@@ -195,19 +195,19 @@ function PANEL:CreatePanels()
 	divider:Dock(TOP)
 	-- bodygroups
 	local activeBodyGroups = LocalPlayer().outfitter_bodygroups or {}
-
+	
 	for k,part in next,self.parts do
-
-
+		
+		
 		if #part.models<2 then continue end
-
+		
 		local r = self:Add("OFRadioBatton")
 		r.OnSelected=function(r,n) self:OnSelected(part,n-1) end
-
+		
 		r:SetText(part.name:gsub("%.smd$","")
 							:gsub("([a-z0-9])([A-Z])([a-z])",
-								function(q,a,b)
-									return q..' '..a:lower()..b
+								function(q,a,b) 
+									return q..' '..a:lower()..b 
 								end)
 							:gsub("[_%.%-]"," ")
 							:gsub("(%s)%s*","%1"))
@@ -218,8 +218,8 @@ function PANEL:CreatePanels()
 			local name = partmdl.name
 							:gsub("%.smd$","")
 							:gsub("([a-z0-9])([A-Z])([a-z])",
-								function(q,a,b)
-									return q..' '..a:lower()..b
+								function(q,a,b) 
+									return q..' '..a:lower()..b 
 								end)
 							:gsub("[_%.%-]"," ")
 							:gsub("(%s)%s*","%1")
@@ -231,9 +231,9 @@ function PANEL:CreatePanels()
 			if name=="" then
 				pnl:SetZPos(-10)
 			end
-
+		
 		end
-
+		
 		r:SetChecked((activeBodyGroups[part.name] or 0)+1)
 	end
 
@@ -268,13 +268,13 @@ function GUIOpenBodyGroupOverlay(owner,mdl)
 		mdl = l[chosen]
 		if not mdl then return false end
 		mdl = mdl.Name
-
+		
 		if not mdl then return false end
 		if not file.Exists(mdl,'workshop') and not file.Exists(mdl,'GAME') then return false end
 	end
-
+	
 	dbg("GUIOpenBodyGroupOverlay",mdl)
-
+	
 	local frame=vgui.Create('DFrame',nil,'bodygroups selector')
 	frame:SetDraggable( false )
 	frame:SetSizable( false )
@@ -288,11 +288,11 @@ function GUIOpenBodyGroupOverlay(owner,mdl)
 	frame:RequestFocus()
 	function frame:Think()
 		if not self.fframe then self.fframe=true return end
-
+		
 		if not self:IsActive() then print"noactive" self:Remove() return end
 		if self.pnlOwner and (not self.pnlOwner:IsValid() or not self.pnlOwner:IsVisible()) then self:Remove() print"noparent" return end
 		local x,y = self:GetPos()
-
+		
 		local w,h = self:GetSize()
 		local sw,sh =ScrW(),ScrH()
 		local nx,ny = (x+w)>sw and (sw-w) or x,
@@ -301,18 +301,18 @@ function GUIOpenBodyGroupOverlay(owner,mdl)
 			self:SetPos(nx,ny)
 		end
 	end
-
+	
 
 	local W,H=250,400 -- TODO: Autoscale GUI
 	frame:SetSize(W,H)
 	frame:SetPos(gui.MousePos())
-	timer.Simple(60,function()
+	timer.Simple(60,function() 
 		if IsValid(frame) then frame:Remove() end
 	end)
-
+	 
 	local scrollpanel=vgui.Create('DScrollPanel',frame)
 	scrollpanel:Dock(FILL)
-
+	
 	local bodygrouper=vgui.CreateFromTable(bodygroups_factor,scrollpanel)
 	bodygrouper:Dock(TOP)
 	bodygrouper:SetModel(mdl)
@@ -320,5 +320,5 @@ function GUIOpenBodyGroupOverlay(owner,mdl)
 end
 
 
-
+ 
 --GUIOpenBodyGroupOverlay()

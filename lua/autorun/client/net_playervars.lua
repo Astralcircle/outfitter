@@ -26,13 +26,13 @@ pcall(require,'netqueue')
 	end
 
 	local function tobytes(magic_len)
-
+		
 		assert(ubit.band(magic_len,0x7)==0,"bits have not been consumed: "..magic_len..' b, '..(magic_len/8)..' B')
 		assert(ubit.rshift(magic_len,3) == magic_len / 8 )
 		return magic_len / 8
-
+		
 	end
-
+	
 	local function ReadType(tn,magic_len)
 		if tn == TYPE_STRING then
 			assert(magic_len)
@@ -49,9 +49,9 @@ pcall(require,'netqueue')
 		end
 		return net.WriteType(dat)
 	end
-
-
-
+	
+	
+	
 local Tag="NetData"
 local data_table=GetNetDataTable and GetNetDataTable() or {}
 
@@ -73,7 +73,7 @@ local SetBurst,IsPlayerVarsBurst do
 		return bursting
 	end
 	net.IsPlayerVarsBurst = IsPlayerVarsBurst
-
+	
 	SetBurst = function(b)
 		if net_playervar_debug:GetBool() then
 			Msg"[PNVar] Burst " print(b and "ON" or "OFF")
@@ -101,25 +101,25 @@ player.ModifyNetData=Set
 
 
 net.Receive(Tag,function(len)
-
+		
 	-- check for burst
 	local id = net.ReadUInt(16)
 	if id==0 or id==1 then
 		SetBurst(id==1)
 		return
 	end
-
+	
 	id = id - 2
-
+	
 	----
-
+	
 	local key = net.ReadString()
 	local _type = net.ReadUInt( 8 )
 	local value = ReadType(_type,len - 16 - #key*8 - 8 - 8 )
 	local old = Get(id,key)
 
 	Set(id,key,value)
-
+	
 	local change,ret = hook.Call(Tag,nil,id,key,value,old)
 	if change == true then
 		Set(id,key,ret)
@@ -130,7 +130,7 @@ local Player=FindMetaTable("Player")
 
 function Player:SetNetData(key,value)
 	if self~=LocalPlayer() then error"not implemented" end
-
+	
 	--TODO: Make a generic queue emptier to reduce function garbage
 	local f = function()
 		net.Start(Tag)
@@ -145,7 +145,7 @@ function Player:SetNetData(key,value)
 	end
 end
 
-
+	
 
 local lookup={}
 function Player:GetNetData(key)
@@ -154,7 +154,7 @@ function Player:GetNetData(key)
 		id = self:UserID()
 		lookup[self] = id
 	end
-
+	
 	-- inlined: local function Get(id,key)
 	local tt = data_table[id]
 	return tt and tt[key]

@@ -452,6 +452,30 @@ end
 concommand.Add("webbrowser", webbrowser, nil)
 concommand.Add("browser", webbrowser, nil)
 concommand.Add("open", webbrowser, nil)
+local webbrowser_f1_open = CreateClientConVar("webbrowser_f1_open", "1", true)
+local f1key = input.LookupKeyBinding(KEY_F1)
+
+local rec
+
+hook.Add("PlayerBindPress", 'webbrowser', function(pl, key, press)
+	if key ~= f1key or not press or not webbrowser_f1_open:GetBool() then return end
+	if rec then return end
+	rec = true
+	local ret = hook.Run("PlayerBindPress", pl, key, press)
+
+	if ret then
+		rec = false
+
+		return ret
+	end
+
+	rec = false
+	local forceurl = hook.Run("WebBrowserF1")
+
+	if forceurl == false then return end
+
+	ShowPanel(forceurl)
+end)
 
 local webbrowser = _G.webbrowserbutton or {}
 _G.webbrowserbutton = webbrowser

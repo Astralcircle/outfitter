@@ -10,7 +10,7 @@ local function FixNPCWrongAnim(pl,slot,act)
 	local seq_ok = pl:LookupSequence("jump_land")
 	if seq_ok<=0 then return end
 	pl:AnimSetGestureSequence(slot,seq_ok)
-
+	
 end
 
 local Player = FindMetaTable"Player"
@@ -61,7 +61,7 @@ do
 		if last_model_index == m_nModelIndex then return end
 		last_model_index = m_nModelIndex
 		QueueFix()
-
+		
 	end
 
 	hook.Add("CreateMove", Tag, CreateMove)
@@ -69,7 +69,7 @@ end
 
 -- Fix TTT and other gamemodes setting playermodel
 do
-
+	
 	TTTFIX = engine.ActiveGamemode() == "terrortown"
 	--TODO: exponential backoff
 	local Tag='outfitter_tttfix'
@@ -77,7 +77,7 @@ do
 		local mdl = pl:GetEnforceModel()
 		if not mdl or mdl=='' then return end
 		if pl==LocalPlayer() then return end
-
+		
 		if mdl == pl:GetModel() then return end
 		if not TTTFIX then return end
 		dbgn(11,'fixEnforce',pl,pl:GetModel(),'->',mdl)

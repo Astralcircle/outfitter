@@ -9,7 +9,7 @@ end
 -- Shared Utils
 function UrlToWorkshopID(url,numok)
 	if not url or not isstring(url) then return end
-
+	
 
 	local ret = url:match'://steamcommunity.com/sharedfiles/filedetails/.*[%?%&]id=(%d+)' or url:match'://steamcommunity.com/workshop/filedetails/.*[%?%&]id=(%d+)'
 	if ret then return ret end
@@ -68,7 +68,7 @@ function DecodeOutfitterPayload(encoded)
 	if not model_path then return nil, 'empty' end
 	model_path = tostring(model_path)
 	if not model_path:find("%.mdl$") and not model_path:lower():find("%.mdl$") then return nil, 'not a .mdl' end
-
+	
 	-- either workshop id or a http url
 	if download_path == nil then return nil, 'empty' end
 	if not tonumber(download_path) and not download_path:find"^https?://.*/" and download_path ~= false then return nil, 'invalid' end
@@ -108,20 +108,20 @@ function MDLIsPlayermodel(f, sz)
 	--print(mdl,mdl.bodypart_count,mdl.skinreference_count)
 	local found = false
 	local imdls = mdl:IncludedModels()
-
+	
 	if mdl.bonecontroller_count ~= mdl.bone_count then
 		--dbg("bonecontroller_count differs?!",mdl.bonecontroller_count,mdl.bone_count)
 	end
-
+	
 	local found
 	local found_anm
 	for k,v in next,imdls do
 		v=v[2]
-
+		
 		if v and v:find("_arms_",1,true) then
 			return false,"arms"
 		end
-
+		
 		if v and not v:find"%.mdl$" then
 			return false,"badinclude",v
 		end
@@ -140,7 +140,7 @@ function MDLIsPlayermodel(f, sz)
 		--	break
 		--end
 	end
-
+	
 	local attachments = mdl:Attachments()
 	if not attachments or not next(attachments) then
 		if not found_anm then
@@ -169,7 +169,7 @@ function MDLIsPlayermodel(f, sz)
 				dbg("MDLIsPlayermodel",mdl.name,"no attachments but included")
 			end
 		end
-
+		
 	end
 	-- UNDONE: guess why
 	--if not found then
@@ -255,14 +255,14 @@ function MDLIsHands(f, sz)
 		--print(name)
 		local isspine = spines[name]
 
-		if isspine then
+		if isspine then 
 			if hadspine then
 				--return false,'bones',name
-			end
+			end 
 			hadspine = true
 		end
 
-
+		
 		gotone = gotone or findone[name]
 		if badbones[name] then return false, 'bones', name end
 	end
@@ -292,7 +292,7 @@ for _,fn in next,flist do
 	local f = file.Open(fpath,'rb','GAME')
 	print(('%50s'):format(fn),MDLIsPlayermodel(f))
 	f:Close()
-
+	
 end--]]
 local t = {"", "", "", ""}
 

@@ -35,9 +35,9 @@ local function parse_zlib(fh, len)
 
 
   fh:Read(len - 6)
-
+  
   local checksum = read_msb_uint32(fh)
-
+  
 end
 
 local function parse_IHDR(tbl,fh, len)
@@ -92,19 +92,19 @@ local function parse_IDAT(tbl,fh, len, compression_method)
     -- fh:Read(len)
     parse_zlib(fh, len)
   else
-
+   
   end
 end
 
 function file.ParsePNG(fh)
   if isstring(fh) then
   	fh = file.Open(fh,'rb','GAME')
-
+  	
   end
   if not fh then error"Invalid file" end
-
+  
   local tbl = {}
-
+  
   -- parse PNG header
   local bytes = fh:Read(8)
   local expect = "\137\080\078\071\013\010\026\010"
@@ -117,7 +117,7 @@ function file.ParsePNG(fh)
   while 1 do
     local len = read_msb_uint32(fh)
     local stype = fh:Read(4)
-
+    
     if stype == 'IHDR' then
       compression_method = parse_IHDR(tbl,fh, len)
       break
@@ -133,7 +133,7 @@ function file.ParsePNG(fh)
       local data = fh:Read(len)
       --print("data=", len == 0 and "(empty)" or "(not displayed)")
     end
-
+	
 	local crc = read_msb_uint32(fh)
 
     if stype == 'IEND' then
@@ -152,9 +152,9 @@ function file.ParseJPG(file)
 	local width = 0
 	local height = 0
 	local seek = {  }
-
+	
 	file:Seek(0)
-
+	
 	dimheader[1] = string.char(255) .. string.char(192)
 	dimheader[2] = string.char(255) .. string.char(194)
 	validjpg = string.char(255) .. string.char(216)

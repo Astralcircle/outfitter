@@ -10,22 +10,22 @@ local vgui = GetVGUI()
 
 -- GUIWantChangeModel
 	local PANEL = {}
-
+	
 	local matUp = Material"icon16/arrow_up.png"
-
+	
 	function PANEL:Init()
 		local txt = vgui.Create('DLabel',self,'msg')
 		txt:Dock(TOP)
 		txt:SetText"If the browser does not change URL please paste the URL yourself in the browser bar from your web browser."
 		txt:SetTextColor(Color(0,0,0,255))
 		local b = vgui.Create('DButton',self.top,'choose button')
-
+			
 			self.chooseb = b
 			b:Dock(RIGHT)
 			b:SetIcon("icon16/accept.png")
 			b:SetText"#select_character"
 			b:SizeToContents()
-
+			
 			b:SetWidth(math.min(b:GetSize(),256)+32)
 			b:SetEnabled(false)
 			b:SetZPos(100)
@@ -36,7 +36,7 @@ local vgui = GetVGUI()
 
 				if b:IsEnabled() then
 					DisableClipping(true)
-
+					
 					surface.SetDrawColor(30,255,0,30)
 					surface.DrawRect(0,0,w,h)
 					surface.SetDrawColor(66,255,22,255*.5 + 255*.3 * (math.sin(RealTime()*7)>0.3 and 1 or -1))
@@ -44,24 +44,24 @@ local vgui = GetVGUI()
 
 					surface.DrawOutlinedRect(-1,-1,w+2,h+2)
 					surface.DrawOutlinedRect(0,0,w,h)
-
-
+					
+					
 					surface.SetDrawColor(255,255,255,255)
 					surface.SetMaterial(matUp)
 					local sz = 32
 					surface.DrawTexturedRect(w*.5-sz*.5,h-2+math.sin(RealTime()*7)*4,sz,sz)
-
+					
 					DisableClipping(false)
 				end
 			end
-
+		
 			b.DoClick=function(b,mc)
 				b.hideusehint=true
 				b:SetCookie("hideusehint",'1')
 				self:WSChoose()
 			end
 			self:GetBrowser():AddFunction( "gmod", "wssubscribe", function() self:WSChoose() end )
-
+			
 	end
 
 	function PANEL:WSChoose()
@@ -74,7 +74,7 @@ local vgui = GetVGUI()
 	function PANEL:LoadedURL(url,title)
 		self.BaseClass.LoadedURL(self,url,title)
 		if not url or url=="" then return end
-
+		
 		-- sharedfiles/filedetails/?id=422403917&searchtext=playermodel
 
 		local id = UrlToWorkshopID(url)
@@ -82,35 +82,35 @@ local vgui = GetVGUI()
 		self.chosen_id = tonumber(id)
 		--print(id)
 	end
-
+	
 	function PANEL:InjectScripts(browser)
 		--dbg("Injecting browser code",browser or "NOBROWSER")
 		browser:QueueJavascript[[
-
+		
 			function SubscribeItem() {
 				gmod.wssubscribe();
 			};
-
+			
 			setTimeout(function() {
 				function SubscribeItem() {
 					gmod.wssubscribe();
 				};
-
+			
 				var sub = document.getElementById("SubscribeItemOptionAdd");
 				if (sub) {
 					sub.innerText = "Select";
 				};
 			}, 0);
-
+			
 		]]
 	end
 	function PANEL:Show(str,returntoui)
-
+		
 		self.returntoui = returntoui
-
+		
 		local dourl = not self.already_loaded
 		self.already_loaded = true
-
+		
 		local url = 'http://steamcommunity.com/workshop/browse/?appid=4000&searchtext=playermodel&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model'
 		if str then
 			str = str and tostring(str)
@@ -120,7 +120,7 @@ local vgui = GetVGUI()
 				url = 'http://steamcommunity.com/workshop/browse/?appid=4000&searchtext=playermodel+'..str..'&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model'
 			end
 		end
-
+		
 		if dourl then
 			self:OpenURL(url)
 		end
@@ -138,9 +138,9 @@ local vgui = GetVGUI()
 			self.chosen_id = tonumber(id)
 
 		end
-
+		
 	end
-
+	
 	function PANEL:Think()
 		self.BaseClass.Think(self)
 		self:CheckEntryURLChange()
@@ -149,44 +149,44 @@ local vgui = GetVGUI()
 
 	m_vModelDlg = NULL
 	function GUIWantChangeModel(str,returntoui)
-
+		
 		if not ValidPanel(m_vModelDlg) then
 			local d = vgui.Create(Tag,nil,Tag)
 			m_vModelDlg = d
 		end
-
+		
 		m_vModelDlg:Show(str,returntoui)
-
+		
 		return m_vModelDlg
 	end
 
+	
+	
+	
 
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
 -- GUIOpen
 
 
 
 local PANEL = {}
 function PANEL:Init()
-
+	
 	local functions = self:Add('DPanel','settings')
 	functions:Dock(LEFT)
 	functions:SetWidth(300)
 	functions:SetHeight(300)
 	functions:DockMargin(4,1,24,0)
 	functions:SetPaintBackground(false)
-
+	
 	--functions:EnableVerticalScrollbar()
 
 	local function Add(itm,b)
@@ -195,7 +195,7 @@ function PANEL:Init()
 		c:Dock(BOTTOM)
 		return c
 	end
-
+	
 	do
 		local b = functions:Add('DButton','choose button')
 			self.btn_choose = b
@@ -205,9 +205,9 @@ function PANEL:Init()
 			b:SetTooltip[[Choose a workshop addon which contains an outfit]]
 
 			b.DoClick= function()
-
+				
 				GUIWantChangeModel(nil,true)
-
+				
 				self:GetParent():Hide()
 			end
 			b:DockMargin(0,4,1,8)
@@ -232,9 +232,9 @@ function PANEL:Init()
 			b:SetPlaceholderText("https://steamcommunity.com/sharedfiles/filedetails/?id=1234")
 
 			b.OnEnter= function()
-
+				
 				local url = b:GetValue():Trim()
-				if url =="puze" then
+				if url =="puze" then 
 					url="https://g2cf.metastruct.net/delme/puze.gma"
 				end
 				local wsid = UrlToWorkshopID(url,true)
@@ -250,7 +250,7 @@ function PANEL:Init()
 							self:GetParent():Hide()
 							UIChoseHTTPGMA(url,true)
 						else
-							chat.AddText("This HTTP URL is not in allowlist")
+							chat.AddText("This HTTP URL is not in allowlist")					
 							surface.PlaySound"common/warning.wav"
 						end
 					else
@@ -272,9 +272,9 @@ function PANEL:Init()
 		l:SetTall(44)
 		l:SetFont"BudgetLabel"
 		l:SetTextColor(Color(255,255,255,255))
-
-
-
+		
+		
+	
 	local mdllist = functions:Add( "DListView",'modelname' )
 		mdllist:SetMultiSelect( false )
 		mdllist:AddColumn( "#gameui_playermodel" )
@@ -305,11 +305,11 @@ function PANEL:Init()
 				mdllist:NoClipping(true)
 			end
 		end
-
+		
 	local sheet = self:Add( "DPropertySheet" )
 		self.sheet = sheet
 		sheet:Dock( FILL )
-
+		
 	local mdlhistpanel = self:Add( "EditablePanel" )
 		self.mdlhistpanel=mdlhistpanel
 		sheet:AddSheet( "#servers_history", mdlhistpanel, "icon16/user.png" )
@@ -323,7 +323,7 @@ function PANEL:Init()
 		self.infopanel=infopanel
 		infopanel.Think=function()
 			infopanel.Think=function() end
-
+			
 			local p = vgui.CreateFromTable(about_factory,infopanel)
 			self.aboutpnl = p
 			--print"create about"
@@ -332,18 +332,18 @@ function PANEL:Init()
 		end
 		infopanel:Dock(FILL)
 		sheet:AddSheet( "#information", infopanel, "icon16/information.png" )
-
+		
 		local function AddS(itm,b)
-
+			
 			local c= vgui.Create(itm,settingspnl,b)
 			--settingslist:AddItem(c)
 			c:Dock(TOP)
 			return c
 		end
-
-
-
-
+		
+		
+	
+	
 	----------------------------------------------------
 
 
@@ -357,7 +357,7 @@ function PANEL:Init()
 	txt:SetTextColor(Color(0,0,0,255))
 
 
-
+	
 	local check = blocklistPanel:Add( "DCheckBoxLabel",'nsfwtoggle' )
 	 	check:SetConVar("nsfw")
 		check:SetText( "Allow NSFW")
@@ -403,8 +403,8 @@ function PANEL:Init()
 		--mdlhist:AddColumn( "#name" )
 		--mdlhist:AddColumn( "#gameui_playermodel" )
 		self.mdlhist = mdlhist
-
-
+	
+		
 		mdlhist:Dock(FILL)
 		mdlhist.OnRowSelected = function(mdlhist,n,itm)
 			local dat = GUIGetHistory()[n]
@@ -420,21 +420,21 @@ function PANEL:Init()
 				v:Remove()
 			end
 		end
-
+		
 	local b = mdlhistpanel:Add('DButton','choose button')
 		self.btn_clearhist = b
-
+		
 		b:Dock(BOTTOM)
-
+		
 		b:SetText("#gameui_clearbutton")
 		b.DoClick= function()
 			GUIClearHistory()
 		end
 		b:DockMargin(0,5,0,0)
 		b:SetImage'icon16/bin.png'
-
-
-
+	
+	
+	
 	local check = AddS( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_enabled")
 		check:SetText( "#gameui_enabled")
@@ -442,7 +442,7 @@ function PANEL:Init()
 		check:SetTooltip[[Toggle this if someone's outfit got blocked or should be showing]]
 		check:DockMargin(1,0,1,1)
 		local btn_en = check
-
+		
 	local check = AddS( "DCheckBoxLabel" )
 		check:SetConVar(Tag.."_friendsonly")
 		check:SetText( "Load only outfits of friends")
@@ -468,12 +468,12 @@ function PANEL:Init()
 		slider:SetDecimals( 0 )
 		slider:SetConVar( Tag..'_distance' )
 		local sld_dist = slider
-
+			
 	local c = AddS( "DComboBox" )
 	c:SetSize( 100, 20 )
 	c:SetTooltip[[Distance mode: start downloading outfits when you get near a player]]
 	--c.SetValue = function(c,val)
-	--	local setv = val==0 and 2 or val==1 and 3 or 1
+	--	local setv = val==0 and 2 or val==1 and 3 or 1 
 	--	dbgn(2,"ChooseDistanceModeCtrl",val,'->',setv)
 	--	c:ChooseOptionID(setv)
 	--end
@@ -487,12 +487,12 @@ function PANEL:Init()
 	c:AddChoice( "Default Mode", '-1' )
 	c:AddChoice( "See All Outfits", '0' )
 	c:AddChoice( "Nearby Outfits Only", '1' )
-
+	
 	c:SetConVar(Tag..'_distance_mode')
 	local d_4 = c
 	c:DockMargin(0,12,0,0)
-
-
+	
+	
 	hr()
 
 	local slider = AddS( "DNumSlider" )
@@ -501,7 +501,7 @@ function PANEL:Init()
 		slider:DockPadding(0,16,0,0)
 		slider.Label:Dock(TOP)
 		slider.Label:DockMargin(0,-16,0,0)
-
+		
 		slider:SetTooltip[[This is how big an outfit you can receive without it being blocked]]
 
 		slider:DockMargin(1,4,1,1)
@@ -517,35 +517,35 @@ function PANEL:Init()
 	--	check:SizeToContents()
 	--	check:Dock(TOP)
 	--	check:DockMargin(1,4,1,1)
-
-
+	
+	
 	hr()
 
 	local check = AddS( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_hands")
 		check:SetText( "Use hands")
 		check:SetTooltip[[Should we guess hands for the playermodels]]
-		check:SizeToContents()
+		check:SizeToContents() 
 
 		check:DockMargin(1,4,1,1)
 	local d_6 = check
-
+	
 	local check = AddS( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_sounds")
 		check:SetText( "UI sounds")
 		check:SetTooltip[[Should we play informational sounds]]
-		check:SizeToContents()
+		check:SizeToContents() 
 
 		check:DockMargin(1,4,1,1)
 	local d_7 = check
-
+	
 	local check = AddS( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_gui_focusdim")
 		check:SetText( "Dim GUI")
 		check:SetTooltip[[When mouse leaves the UI should we dim it?]]
 		check:SizeToContents()
 		check:DockMargin(1,4,1,1)
-
+		
 	hr()
 	local check = AddS( "DCheckBoxLabel" )
 		check:SetConVar(Tag.."_allow_http_test")
@@ -573,7 +573,7 @@ function PANEL:Init()
 		debug:SetText( "#debug")
 		debug:SetTooltip[[Print debug stuff to console. Enable this if something is wrong and in the bugreport give the log output.]]
 		debug:SizeToContents()
-
+ 
 		debug:DockMargin(1,14,1,1)
 		local d_3 = debug
 
@@ -593,7 +593,7 @@ function PANEL:Init()
 
 		check:DockMargin(1,4,1,1)
 		local d_2 = check
-
+		
 	local check = AddS( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_use_autoblacklist")
 		check:SetText( "Autoblacklist")
@@ -609,7 +609,7 @@ function PANEL:Init()
 		check:SetTooltip[[Previously we needed a fullupdate to fix animations. Now a different technique is used.]]
 
 		check:DockMargin(1,4,1,1)
-
+		
 	local check = AddS( "DCheckBoxLabel" )
 		check:SetConVar(Tag.."_download_notifications")
 		check:SetText( "Legacy: Show downloading notifications")
@@ -619,29 +619,29 @@ function PANEL:Init()
 		check:DockMargin(1,4,1,1)
 
 	local check = AddS( "DButton" )
-	 	check:SetText( "FIX: Clear models blacklist")
+	 	check:SetText( "FIX: Clear models blacklist") 
 		check:DockMargin(1,4,1,1)
 		check.DoClick=function()
 			RunConsoleCommand"outfitter_blacklist_clear"
 		end
 		check:SetImage'icon16/tag_blue_delete.png'
-
+		
 	local check = AddS( "DButton" )
-	 	check:SetText( "FIX: Fullupdate")
+	 	check:SetText( "FIX: Fullupdate") 
 		check:DockMargin(1,4,1,1)
 		check.DoClick=function()
 			Fullupdate()
 		end
 		check:SetImage'icon16/transmit_error.png'
-
+		
 	local check = AddS( "DButton" )
-	 	check:SetText( "FIX: Local player animations")
+	 	check:SetText( "FIX: Local player animations") 
 		check:DockMargin(1,4,1,1)
 		check.DoClick=function()
 			FixLocalPlayerAnimations(true)
 		end
 		check:SetImage'icon16/transmit_error.png'
-
+		
 	local b = Add('DButton','thirdperson')
 		b:SetText("#tool.camera.name")
 		b:SetTooltip[[Enables/disable thirdperson (if one is installed)]]
@@ -649,9 +649,9 @@ function PANEL:Init()
 		b.DoClick=function() ToggleThirdperson() end
 		b:DockMargin(16,2,16,1)
 		b:SetImage'icon16/find.png'
-
-
-
+	
+	
+	
 	--local b = Add('EditablePanel')
 	--b:SetTall(1)
 	--b:DockMargin(-4,24,-4,1)
@@ -660,16 +660,16 @@ function PANEL:Init()
 	--	surface.DrawRect(0,0,w,h)
 	--end
 	--local hr_line1 = b
-
+	
 	--------------------------------------------------
-
-
-
+	
+	
+		
 	-- second layer
 	local cont = functions:Add('EditablePanel','container')
 	cont:SetTall(24)
 	cont:Dock(BOTTOM)
-
+		
 	local b = vgui.Create('DButton',mdllist,'Bodygroups button')
 		function b.Refresh(b)
 			-- poor man's pcall
@@ -677,7 +677,7 @@ function PANEL:Init()
 				b.mdl = false
 				b:SetEnabled2(false)
 				dbg("Bodygroup","BTN","Refresh")
-
+				
 				local l = UIGetMDLList()
 				if not l then return end
 				local chosen = UIGetChosenMDL()
@@ -688,7 +688,7 @@ function PANEL:Init()
 				local a = mdlinspect.Open(mdl.Name)
 				a:ParseHeader()
 				local parts = a:BodyPartsEx()
-				local ok
+				local ok 
 				for k,v in next,parts do
 					if v.nummodels>1 then
 						ok=true
@@ -696,13 +696,13 @@ function PANEL:Init()
 					end
 				end
 				if not ok then return end
-
+				
 				b:SetEnabled2(true)
 				b.mdl = mdl
 			end)
 		end
-
-
+		
+		
 		self.btn_bg= b
 		b:Dock(NODOCK)
 		b:SetText("")
@@ -714,9 +714,9 @@ function PANEL:Init()
 		b:SetImage'icon16/group_edit.png'
 		b.PerformLayout=function(b,w,h)
 			DButton.PerformLayout(b,w,h)
-
+			
 			local w2 = b:GetParent():GetCanvas():GetWide()
-
+			
 			local _,y = b:GetParent():GetSize()
 			b:SetPos(w2-w-1,y-h-1)
 		end
@@ -732,7 +732,7 @@ function PANEL:Init()
 		--		end
 		--	end
 		--end
-
+	
 	local b = cont:Add('DButton','Autowear button')
 		self.btn_autowear = b
 		b:SetTooltip[[Automatically wear this outfit on servers]]
@@ -751,15 +751,15 @@ function PANEL:Init()
 			m:Open()
 		end
 		b:SetImage'icon16/disk.png'
-
-
+	
+	
 	--------------------------------------------------
 
-
+	
 	local cont = functions:Add('EditablePanel','container')
 	cont:SetTall(32)
 	cont:Dock(BOTTOM)
-
+	
 	local b = cont:Add('DButton','Send button')
 		self.btn_send= b
 		b:Dock(LEFT)
@@ -788,9 +788,9 @@ function PANEL:Init()
 				end
 			end
 		end
-
-
-
+	
+	
+	
 	local b = cont:Add('DButton','Clear button')
 		self.btn_clear = b
 		b:SetTooltip[[This removes all traces of you wearing an outfit]]
@@ -803,12 +803,12 @@ function PANEL:Init()
 			--self:GetParent():Hide()
 		end
 		b:SetImage'icon16/cancel.png'
-
-
-
+		
+		
+	
 	local div = self:Add"DHorizontalDivider"
 	div:Dock( FILL )
-
+	
 	functions:Dock(NODOCK)
 	sheet:Dock(NODOCK)
 	div:SetCookieName(Tag)
@@ -820,7 +820,7 @@ function PANEL:Init()
 	div:SetLeftWidth( 300 )
 
 	--------------------------------------------------
-
+	
 end
 
 
@@ -833,11 +833,11 @@ function PANEL:WantOutfitMDL(wsid,mdl,title)
 	if wanting and want_wsid == wsid then
 		want_mdl = mdl
 	end
-
+	
 	if wanting then return false end
 	want_wsid = wsid
 	want_mdl = mdl
-
+	
 	local worker=co(function()
 		if wanting then return end
 		wanting = true
@@ -848,7 +848,7 @@ function PANEL:WantOutfitMDL(wsid,mdl,title)
 		GUIOpen(nil,want_mdl)
 		wanting = false
 	end)
-
+	
 	return worker
 
 end
@@ -871,9 +871,9 @@ function GUIBroadcastMyOutfit()
 			--if self and self.lbl_chosen:IsValid() then
 			--	self.lbl_chosen:SetText( "Loading info..." )
 			--end
-
-
-
+			
+			
+			
 			local info = co_steamworks_FileInfo(wsid)
 			local title = info.title
 			local self = GUIPanel()
@@ -889,15 +889,15 @@ end
 local want_n
 local choosing
 function GUIChooseMDL(n)
-
+	
 	dbg("GUIChooseMDL",n,choosing and "already choosing, changing" or "",want_n)
 	want_n = n
-
+	
 	if choosing then return false end
 	local mdllist = UIGetMDLList()
 	local mdl = mdllist and mdllist[n]
 	if not mdl then return false end
-
+	
 	co(function()
 		if choosing then return end
 		choosing = true
@@ -941,13 +941,13 @@ function GUIAddHistory(wsid,title,mdl)
 		local wsid2,mdl2 = v[1],v[2]
 		if wsid2==wsid and mdl2==mdl then return end
 	end
-
+	
 	local t = {wsid,mdl,title}
 	table.insert(hist,t)
 	SAVE(hist)
-
+	
 	GUIRefresh()
-
+	
 	return t
 end
 
@@ -960,9 +960,9 @@ function GUIDelHistory(n)
 	if n<0 then table.Empty(hist) end
 	local ret = table.remove(hist,n)
 	SAVE(hist)
-
+	
 	GUIRefresh()
-
+	
 	return ret
 end
 
@@ -971,7 +971,7 @@ function GUICheckTransmit()
 	if not gui then return end
 	local self = gui.content
 	if not self then return end
-
+	
 	local cansend = UIGetChosenMDL() and UIGetDownloadInfoX() and UIGetMDLList()
 	self.btnSendOutfit:SetEnabled2(cansend)
 	self.btn_bg:Refresh()
@@ -982,11 +982,11 @@ function PANEL:DoRefresh(trychoose_mdl)
 	self.mdllist:Clear()
 	self.btn_bg:Refresh()
 	self.mdlhist:Clear()
-
+	
 	self.lbl_chosen:SetText("Please choose a workshop addon")
 
 	local wsid = UIGetWSID()
-
+	
 	co(function()
 		self.lbl_chosen:SetText("-")
 
@@ -995,7 +995,7 @@ function PANEL:DoRefresh(trychoose_mdl)
 			local info = co_steamworks_FileInfo(wsid)
 			if not self:IsValid() then return end
 			if not self.lbl_chosen:IsValid() then return end
-
+			
 			if wsid~=UIGetWSID() then
 				return
 			end
@@ -1005,7 +1005,7 @@ function PANEL:DoRefresh(trychoose_mdl)
 				local str = ("%s (%s)"):format(info.title,string.NiceSize(info.size or 0))
 				self.lbl_chosen:SetText(str)
 			end
-
+		
 		elseif wsid and #wsid:find"http" then -- it's a gma download
 			local ok,body,len,hdrs,code = co_head(wsid)
 			if ok then
@@ -1017,13 +1017,13 @@ function PANEL:DoRefresh(trychoose_mdl)
 		end
 	end)
 
-
+	
 	local tm = UITriedMounting()
 	local mdllist = UIGetMDLList()
-
+	
 	GUICheckTransmit()
-
-
+	
+	
 	-- model list
 	local chosen
 	for k,dat in next,mdllist or {} do
@@ -1031,16 +1031,16 @@ function PANEL:DoRefresh(trychoose_mdl)
 			chosen = true
 		end
 		local pnl = self.mdllist:AddLine( dat.Name and MDLToUI(dat.Name) or "???" )
-
+		
 		if chosen and chosen==true then
 			chosen = pnl
 		end
-
+		
 	end
-
+	
 	local extra = UIGetMDLListExtra()
 	if extra and extra.discards then
-
+		
 		for k,dat in next,extra.discards or {} do
 			local pnl = self.mdllist:AddLine( dat.Name and MDLToUI(dat.Name) or "???" )
 			pnl:SetTooltip(dat.error_player or dat.error_vvd or "INVALID MODEL")
@@ -1052,13 +1052,13 @@ function PANEL:DoRefresh(trychoose_mdl)
 				return r
 			end
 		end
-
+	
 	end
-
+	
 	for _,v in next,GUIGetHistory() do
 		local wsid,mdl,title = unpack(v)
 
-
+		
 		local pnl = self.mdlhist:Add( 'DOWorkshopIcon' )
 		pnl:SetAddon({wsid = wsid,title=MDLToUI(mdl)})
 		self.mdlhist:Layout()
@@ -1085,25 +1085,25 @@ function PANEL:DoRefresh(trychoose_mdl)
 					surface.PlaySound"common/warning.wav"
 				end
 			end
-
+			
 		end
 	end
 
 	if chosen then
 		if chosen~=true then
-
+			
 			dbg("SelectItem","AUTO",chosen,trychoose_mdl)
-
+			
 			self.mdllist:SelectItem(chosen)
 
 		else
 			dbg("Choose missing",trychoose_mdl)
 		end
-
+		
 	end
-
+	
 	self.btn_bg:Refresh()
-
+	
 end
 
 local factory = vgui.RegisterTable(PANEL,'EditablePanel')
@@ -1124,10 +1124,10 @@ function PANEL:Init()
 	local pnl = vgui.CreateFromTable(factory,self)
 	self.content = pnl
 	pnl:Dock(FILL)
-
+	
 	local t=os.date"*t"
 	self.m_bPaintHat = t.month==12 and t.day<=25
-
+	
 	self:SetCookieName"ofp"
 	self:SetTitle"Outfitter"
 	self:SetMinHeight(290)
@@ -1137,22 +1137,22 @@ function PANEL:Init()
 	self.btnMinim:SetEnabled(true)
 	self.btnMaxim:SetEnabled(true)
 	local had_max = self:GetCookie( "pmax", "" ) == '1'
-
+	
 	if had_max then
 		self:SetSize(640,400)
 	else
 		self:SetSize(313,293)
 	end
-
+	 
 	self.btnMaxim.DoClick=function()
 		self:SetSize(640,400)
 		self:SetCookie( "pmax", '1' )
 		had_max = true
 		self:CenterVertical()
 	end
-
+	
 	self:CenterVertical()
-
+	
 	if not had_max then
 		self.btnMaxim.PaintOver = function(b,w,h)
 			if had_max then return end
@@ -1167,11 +1167,11 @@ function PANEL:Init()
 	self.btnMinim.DoClick=function()
 		self:SetSize(313,293)
 		self:CenterVertical()
-
+		
 	end
 	self:SetDraggable( true )
     self:SetSizable( true )
-
+	
 	local title = self.lblTitle
 	if title then
 		self:SetIcon'icon16/user.png'
@@ -1182,7 +1182,7 @@ function PANEL:Init()
 		--	img:SetWide(img:GetTall())
 		--	title:SetTextInset(img:GetTall() + 5,0)
 		--end
-
+	
 		local check = self:Add( "DCheckBoxLabel" )
 	 	check:SetConVar(Tag.."_enabled")
 		check:SetText( "#gameui_enabled")
@@ -1197,15 +1197,15 @@ function PANEL:Init()
 	end
 	local Think = self.Think
 	self.Think = function(...)
-
+				
 		Think(...)
 
 		local hovered = self:IsHovered() or self:IsChildHovered()
-
+		
 		if hovered and not self.hadhover then
 			self.hadhover = true
-		end
-
+		end 
+		
 		local hasf = not outfitter_gui_focusdim:GetBool() or (hovered or not self.hadhover) or self.Dragging or self.Sizing
 		if hasf~=self.hierfocused then
 			self.hierfocused = hasf
@@ -1222,7 +1222,7 @@ function PANEL:Init()
 			f=f>1 and 1 or f<0 and 0 or f
 			self:SetAlpha(f*200+55)
 		end
-
+		
 		local x,y=self:CursorPos()
 		if x>0 and x<20 and y>0 and y<20 then
 			self:SetCursor( "hand" )
@@ -1235,21 +1235,21 @@ function PANEL:OnMouseReleasedHook(mc)
 	local x,y = self:CursorPos()
 	if x<0 or x>20 then return end
 	if y<0 or y>20 then return end
-
-
+	
+	
 	if mc==MOUSE_LEFT then
 		GUIAbout()
 		return
 	end
-
+	
 	local menu = DermaMenu()
-
+	
 	if UIGetChosenMDL() and UIGetMDLList() and LocalPlayer().latest_want~=UIGetMDLList()[UIGetChosenMDL()] then
 		menu:AddOption( "#gameui_submit", function() GUIBroadcastMyOutfit() end ):SetImage'icon16/transmit.png'
 	end
-
+	
 	--menu:AddLine()
-
+	
 	menu:AddOption( "About", function() GUIAbout() end ):SetImage'icon16/information.png'
 	menu:AddOption( "Close", function() self:Hide() end ):SetImage'icon16/door_out.png'
 	menu:Open()
@@ -1258,13 +1258,13 @@ end
 function PANEL:PerformLayout(w,h)
 	DFrame.PerformLayout(self,w,h)
 	self.btnMinim:SetEnabled(w>(self:GetMinWidth() + 5) or h>(5 + self:GetMinHeight()))
-
+	
 	local check = self.btnCheck
 	local cw,ch = 0,0
 	if check then
 		cw,ch = check:GetSize()
 	end
-
+	
 	local b = self.btnMinim or self.btnMaxim
 	if b and b:IsValid() then
 		local bw,bh = b:GetWide(),b:GetTall()
@@ -1299,9 +1299,9 @@ function PANEL:Show(_,trychoose_mdl)
 end
 function PANEL:DoRefresh(trychoose_mdl)
 	if not self:IsVisible() then return end
-
+	
 	self.content:DoRefresh(trychoose_mdl)
-
+	
 end
 
 local factory = vgui.RegisterTable(PANEL,'DFrame')
@@ -1325,25 +1325,25 @@ if ValidPanel(prev) then prev:Remove() end
 m_vGUIDlg = NULL
 local alerted
 function GUIOpen(_,trychoose_mdl)
-
+	
 
 	if not ValidPanel(m_vGUIDlg) then
 		local d = vgui.CreateFromTable(factory,nil,Tag..'_GUI')
 		m_vGUIDlg = d
 	end
-
-
+	
+	
 	m_vGUIDlg:Show(nil,trychoose_mdl)
-
+	
 	if Derma_Message and not alerted and game.SinglePlayer() then
 		alerted = true
 		Derma_Message("You are playing singleplayer. Outfitter may not work at all.",'WARNING')
 	end
-
+	
 	return m_vGUIDlg
 end
 
-
+	
 
 if NOUI then return end
 concommand.Add(Tag..'_open',function()
@@ -1352,7 +1352,7 @@ end)
 --RunConsoleCommand(Tag..'_open')
 
 
-
+  
 
 -- button --
 

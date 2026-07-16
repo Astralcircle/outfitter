@@ -129,7 +129,7 @@ local inited
 local function initcredits()
 	if inited then return end
 	inited=true
-
+	
 	credits[#credits+1] = {
 		LocalPlayer():GetName(),
 		LocalPlayer():SteamID64(),
@@ -140,10 +140,10 @@ end
 local PANEL={}
 
 function PANEL:Init(asd) local _
-
+	
 	asd = asd==true
 	self.is_panel = asd
-
+	
 	initcredits()
 	if not self.is_panel then
 		self:SetTitle"Outfitter (About)"
@@ -156,26 +156,26 @@ function PANEL:Init(asd) local _
 
 		_=self.btnMinim and self.btnMinim:SetVisible(false)
 		_=self.btnMaxim and self.btnMaxim:SetVisible(false)
-
+		
 		self:SetDraggable( true )
 		self:SetSizable( true )
-
+		
 		local title = self.lblTitle
 		if title then
 			self:SetIcon'icon16/information.png'
-
+			
 		end
 	end
-
+	
 	local pnl = vgui.Create('DScrollPanel',self)
 	self.content = pnl
-
+	
 	-- HACK
 		pnl.VBar:SetParent(self)
 		pnl.VBar:Dock(RIGHT)
 		pnl.VBar:DockMargin(-pnl.VBar:GetWide()+4,0,0,0)
 	pnl:Dock(FILL)
-
+	
 	self:GenDesc()
 	for _,entry in next,credits do
 		self:GenAbout(entry)
@@ -183,11 +183,11 @@ function PANEL:Init(asd) local _
 end
 
 function PANEL:GenDesc()
-
-
+	
+	
 	local lbl_desc = vgui.Create('DLabel',self)
 	local amt = #file.Find("cache/workshop/*.*",'MOD')
-
+	
 	local txt = ("Workshop cache: %d addons!"):format(amt)
 	lbl_desc:SetText(txt)
 	lbl_desc:DockMargin(4,4,4,4)
@@ -197,8 +197,8 @@ function PANEL:GenDesc()
 	lbl_desc:SetWrap(true)
 	lbl_desc:Dock(TOP)
 	self:AddItem(lbl_desc)
-
-
+	
+	
 	local lbl_desc = vgui.Create('DLabel',self)
 	lbl_desc:SetText[[Hello there! Outfitter was made to fill the need of the GMod community and for procrastination.
 Although mostly working, outfitter still has bugs and you can help with that by reporting them.]]
@@ -209,8 +209,8 @@ Although mostly working, outfitter still has bugs and you can help with that by 
 	lbl_desc:SetWrap(true)
 	lbl_desc:Dock(TOP)
 	self:AddItem(lbl_desc)
-
-
+	
+		
 	local b = vgui.Create( "DButton", self )
 	b:SetText"Bug reporting"
 	b.DoClick=function()
@@ -218,7 +218,7 @@ Although mostly working, outfitter still has bugs and you can help with that by 
 	end
 	b:DockMargin(4,2,4,2)
 	self:AddItem(b)
-
+	
 	local b = vgui.Create( "DButton", self )
 	b:SetText"Get outfitter"
 	b.DoClick=function()
@@ -226,7 +226,7 @@ Although mostly working, outfitter still has bugs and you can help with that by 
 	end
 	b:DockMargin(4,2,4,2)
 	self:AddItem(b)
-
+	
 	local lbl_desc = vgui.Create('DLabel',self)
 	lbl_desc:SetText[[Finally, the people responsible for this mess include but are not limited to:]]
 	lbl_desc:DockMargin(4,14,4,8)
@@ -252,21 +252,21 @@ function PANEL:GenAbout(entry)
 		id = id[2]
 		custom=true
 	end
-
+	
 	local pnl = vgui.Create('DPanel',self)
-
+	
 	local ftitle,fdesc = 'TargetID','default'
-
+	
 	self:AddItem(pnl)
 	pnl:SetTall(140)
 	pnl:DockMargin(0,0,0,4)
 	pnl:DockPadding(1,1,1,4)
-
+	
 	local avatar = vgui.Create('EditablePanel',pnl)
 	avatar:Dock(LEFT)
 	avatar:SetWidth(48)
 	avatar:DockMargin(2,2,2,2)
-
+	
 	avatar.Paint=sid64 and function(avatar,w,h)
 		local sz = w<h and w or h
 		SetAvatarTexture184(sid64)
@@ -275,7 +275,7 @@ function PANEL:GenAbout(entry)
 		if h-sz<5 then
 			oy = h*.5-sz*.5
 		end
-
+		
 		surface.SetDrawColor(255,255,255,255)
 		surface.DrawTexturedRect(ox,oy,sz,sz)
 		--surface.SetDrawColor(33,33,33,111)
@@ -293,7 +293,7 @@ function PANEL:GenAbout(entry)
 		end
 		surface.SetDrawColor(120,110,100,90)
 		surface.DrawOutlinedRect(ox,oy,sz,sz)
-
+		
 		surface.SetDrawColor(255,255,255,255)
 		link = link or Material"icon16/link.png"
 		surface.SetMaterial(link)
@@ -311,7 +311,7 @@ function PANEL:GenAbout(entry)
 		end
 		gui.OpenURL(url)
 	end
-
+	
 	--function pnl.Paint(pnl,w,h)
 	--	surface.SetDrawColor(255,255,255,100)
 	--	surface.DrawOutlinedRect(0,0,w,h)
@@ -325,14 +325,14 @@ function PANEL:GenAbout(entry)
 	lbl:SetDrawBackground(false)
 	lbl:SetContentAlignment( 1 )
 	lbl:SetCursor"hand"
-	if sid64 and not custom then
+	if sid64 and not custom then 
 		co(function()
 			local nick,err = co.steamnick(sid64)
 			if not nick or not lbl:IsValid() then return end
 			lbl:SetText(tostring(nick))
 		end)
 	end
-
+	
 	lbl:DockMargin(4,0,0,0)
 	lbl:SetMouseInputEnabled(true)
 	lbl.DoClick = function()
@@ -342,7 +342,7 @@ function PANEL:GenAbout(entry)
 		end
 		gui.OpenURL(url)
 	end
-
+	
 	local lbl_desc = vgui.Create('DLabel',pnl)
 	lbl_desc:SetText(desc)
 	lbl_desc:DockMargin(4+4,0,0,0)
@@ -353,7 +353,7 @@ function PANEL:GenAbout(entry)
 		surface.SetDrawColor(120,110,100,5)
 		surface.DrawOutlinedRect(0,0,w,h)
 	end
-
+	
 	function pnl.PerformLayout(pnl)
 		local t = {}
 		local minh = self:GetTall()
@@ -406,19 +406,19 @@ end
 
 m_pAboutDlg = NULL
 function GUIAbout()
-
+	
 	if not ValidPanel(m_pAboutDlg) then
 		local d = vgui.CreateFromTable(factory,nil,Tag..'_about')
 		m_pAboutDlg = d
 	end
-
-
+	
+	
 	m_pAboutDlg:Show()
-
+	
 	return m_pAboutDlg
 end
 
-
+	
 concommand.Add(Tag..'_about',function()
 	GUIAbout()
 end)
