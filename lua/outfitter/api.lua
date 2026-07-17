@@ -58,12 +58,12 @@ end
 do
     local blocklist_key = Tag .. '_model_blocklist'
     local function save_blocklist(t)
-        util.SetPData("0", blocklist_key, json.encode(t))
+        util.SetPData("0", blocklist_key, util.TableToJSON(t))
     end
     local function load_blocklist()
         local s = util.GetPData("0", blocklist_key, false)
         if not s or s == "" or s == "nil" then return {} end
-        local ok, t = pcall(json.decode, s)
+        local ok, t = pcall(util.JSONToTable, s)
         if not ok or not t then return {} end
         return t
     end
