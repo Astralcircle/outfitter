@@ -13,7 +13,7 @@ OUTFITTER REJECTS
 
 	[OF ERROR] @  lua/outfitter/cl_util.lua:792: GMAPlayerModels Disagreement C:\Program Files (x86)\Steam\steamapps\workshop\content\4000\2242241647/ena_pm13_2.gma models/player/ena/ch/ena_carm.mdl
 
-	
+
 	Strict mode?
 
 	(partially fixed) 1367741116 ragdoll lags to hell
@@ -32,9 +32,15 @@ ent:SnatchModelInstance()
 
 TODO
 ====================
-	Check for spectators and do nothing for "models/player.mdl" 
+	Check for spectators and do nothing for "models/player.mdl"
 	Perfmode only disable downloading, allow enforcing
-	
+
+	Create local NTagVisState ='of_s', LocalPlayer():SetNetData(NTagVisState, bitmap string of which EntIndex() has outfit visible ) . Update every 5 seconds.
+	Clone outfit if sv_allowcslua or player allows cloning.
+
+	Fix autowear not showing up in GUI
+
+
 	BodyGroups testing 	471628201
 	NSFW test crashes: 2806932615 (huge addon, crashes outside outfitter?)
 	list favorited from workshop (playermodels heuristic?)
@@ -81,7 +87,7 @@ TODO
 		Spectators force localplayer hands
 		TTTFIX may be crashing people
 		PAC may be overriding clientside also, add exp. backoff
-		mdls appear valid but become errors after mapchange. OBBMins on player is invalid. 		
+		mdls appear valid but become errors after mapchange. OBBMins on player is invalid.
 ]]
 
 
@@ -133,8 +139,8 @@ _M.this = setmetatable({},{__index = function(self,k) return rawget(_M,k) end,__
 this.Tag =Tag
 this.NTag = 'OF'
 
-local outfitter_dbg_tosv = SERVER and CreateConVar("outfitter_dbg_tosv","0") or CreateClientConVar("outfitter_dbg_tosv","0",false,false)
-local outfitter_dbg = SERVER and CreateConVar("outfitter_dbg","1") or CreateClientConVar("outfitter_dbg","0",true,false)
+local outfitter_dbg_tosv = SERVER and CreateConVar("outfitter_dbg_tosv","0", FCVAR_NONE, "Send debug messages to server console") or CreateClientConVar("outfitter_dbg_tosv","0",false,false, "Send debug messages to server console")
+local outfitter_dbg = SERVER and CreateConVar("outfitter_dbg","1", FCVAR_NONE, "Print debug info to console") or CreateClientConVar("outfitter_dbg","0",true,false, "Print debug info to console")
 _M.outfitter_dbg = outfitter_dbg
 
 function isdbg(n)
@@ -222,6 +228,8 @@ inc 'gui_bodygroups'		'cl'
 inc 'gui'		'cl'
 
 inc 'net'		'sh'
+
+inc 'api'		'cl'
 
 gma.rebuild_nolua_cache_purge(function(path)
 	dbgn(4,"Attempting cleaning cache: "..tostring(path))
