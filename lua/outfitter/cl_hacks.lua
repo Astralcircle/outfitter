@@ -62,8 +62,9 @@ do
 end
 
 -- Fix TTT and other gamemodes setting playermodel
-do
-	TTTFIX = engine.ActiveGamemode() == "terrortown"
+TTTFIX = engine.ActiveGamemode() == "terrortown" and true or nil
+
+if TTTFIX then
 	--TODO: exponential backoff
 	local Tag = 'outfitter_tttfix'
 	hook.Add('PrePlayerDraw', Tag, function(pl)
@@ -72,7 +73,6 @@ do
 		if pl == LocalPlayer() then return end
 
 		if mdl == pl:GetModel() then return end
-		if not TTTFIX then return end
 		dbgn(11, 'fixEnforce', pl, pl:GetModel(), '->', mdl)
 		pl:EnforceModel(mdl)
 	end)
