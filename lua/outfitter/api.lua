@@ -119,6 +119,68 @@ function api.get_player_networked_data(ply)
     }
 end
 
+---Returns a human-readable description of why a player's outfit is not visible,
+---along with the outfit data it relates to.
+---@param ply Player
+---@return string|nil status
+---@return OutfitterData|nil data
+function api.describe_outfit_error(ply)
+    if not IsValid(ply) then return nil end
+
+    local last = ply.outfitter_last_error
+    local data = api.get_player_networked_data(ply)
+
+    if last then
+        local reason = ExplainErrorCode(last.error, last.download_path)
+        return reason, { mdl = last.mdl, download_path = last.download_path }
+    end
+
+    if data then
+        if api.is_blocked(data.mdl) then
+            return "Hidden by your outfit blocklist", data
+        end
+        if ply.enforce_model == data.mdl then
+            return nil
+        end
+        return "Unknown error", data
+    end
+
+    return nil
+end
+
+---Temporarily unblocks a player's outfit (session-only) and retries downloading/applying it.
+---Clears the workshop fetch failure cache so a previously-blocked item is fetched again.
+---@param ply Player
+---@return boolean ok
+---@return string|nil err
+function api.retry_outfit(ply)
+    if not IsValid(ply) then return false, "no_player" end
+
+    local data = api.get_player_networked_data(ply)
+    local mdl = data and data.mdl
+    local download_path = data and data.download_path
+    if not mdl then
+        local cur = ply:OutfitInfo()
+        if cur then mdl, download_path = cur end
+    end
+    if not mdl then return false, "no_outfit" end
+
+    if api.is_blocked(mdl) then
+        api.unblock(mdl)
+    end
+
+    if download_path and tonumber(download_path) then
+        TemporarilyAllowWS(download_path)
+        ResetWS(download_path)
+    end
+
+    ply.outfitter_last_error = nil
+    ply.outfitter_nvar = nil
+    OnPlayerVisible(ply)
+
+    return true
+end
+
 hook.Add("CanOutfit", Tag, function(pl, mdl, download_info)
     if api.is_blocked(mdl) then return false end
 end)
