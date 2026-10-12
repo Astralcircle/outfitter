@@ -534,7 +534,7 @@ end
 outfitter_maxsize = CreateClientConVar("outfitter_maxsize", "70", true, false, "Max download size (MB) for an outfit + dependencies")
 
 if outfitter_maxsize:GetFloat()==60 then
-	-- Override old default 
+	-- Override old default
 	outfitter_maxsize:SetInt(70)
 end
 
@@ -689,7 +689,7 @@ function Player.EnforceModel(pl, mdl, nocheck)
 			curmdl = nil
 		end
 		pl.original_model = curmdl
-	
+
 	elseif curmdl and curmdl ~= origmdl and curmdl ~= curenforce then
 		--NOTE: WARNING: This is a fix attempt at finding original_model when it changes serverside while forcing outfitter playermodel
 		local valid = curmdl ~= "" and curmdl ~= "models/error.mdl" and curmdl ~= "models/player.mdl"
@@ -1306,11 +1306,11 @@ concommand.Add("outfitter_dump", function()
 	local COL_NONE = Color(140, 140, 140)
 	local COL_KEY = Color(200, 200, 200)
 
---[[TODO: Add 
+--[[TODO: Add
 	local key = util.GetPData("0", CrashingTagk, false)
 	if not key or key == "" then return end
 	local val = util.GetPData("0", CrashingTagv, "")
-	
+
 	Model: GetModel or original_model
 	Outfi: OutfitInfo if exists
 	 - skin

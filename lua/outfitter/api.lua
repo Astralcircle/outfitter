@@ -58,12 +58,12 @@ end
 do
     local blocklist_key = Tag .. '_model_blocklist'
     local function save_blocklist(t)
-        util.SetPData("0", blocklist_key, json.encode(t))
+        util.SetPData("0", blocklist_key, util.TableToJSON(t))
     end
     local function load_blocklist()
         local s = util.GetPData("0", blocklist_key, false)
         if not s or s == "" or s == "nil" then return {} end
-        local ok, t = pcall(json.decode, s)
+        local ok, t = pcall(util.JSONToTable, s)
         if not ok or not t then return {} end
         return t
     end
@@ -186,132 +186,3 @@ hook.Add("CanOutfit", Tag, function(pl, mdl, download_info)
 end)
 
 _M.api = api
-
-if CLIENT then
-    local T = language.GetPhrase
-
-    properties.Add("outfitter", {
-        MenuLabel = "#outfitter",
-        Order = 22,
-        MenuIcon = "icon16/user_go.png",
-        PrependSpacer = true,
-
-        Filter = function(self, ent, ply)
-            if not IsValid(ent) then return false end
-            if not ent:IsPlayer() then return false end
-            if not IsEnabled() then return false end
-            if not CanPlayerMenu() then return false end
-            local mdl = ent:OutfitInfo()
-            if mdl then return true end
-            if api.get_player_networked_data(ent) then return true end
-            return false
-        end,
-
-        MenuOpen = function(self, option, ent, tr)
-            if not IsValid(ent) then return end
-            local submenu = option:AddSubMenu()
-            submenu:AddOption("Open Outfitter", function()
-                GUIOpen()
-            end):SetImage("icon16/application_view_list.png")
-            local mdl, download_path = ent:OutfitInfo()
-
-            if not mdl then
-                local netdata = api.get_player_networked_data(ent)
-                if netdata then
-                    local reason, last
-                    if ent.outfitter_last_error then
-                        last = ent.outfitter_last_error
-                        reason = ExplainErrorCode(last.error, last.download_path) or last.error or "Unknown error"
-                    elseif api.is_blocked(netdata.mdl) then
-                        reason = "Hidden by your outfit blocklist"
-                    else
-                        reason = "Unknown error"
-                    end
-
-                    submenu:AddOption(reason, function() end):SetImage("icon16/exclamation.png")
-
-                    if api.is_blocked(netdata.mdl) then
-                        submenu:AddOption("Unblock Outfit", function()
-                            api.unblock(netdata.mdl)
-                        end):SetImage("icon16/status_online.png")
-                    end
-
-                    submenu:AddOption("Temporarily Unblock & Retry", function()
-                        api.retry_outfit(ent)
-                    end):SetImage("icon16/arrow_refresh.png")
-
-                    submenu:AddOption("Copy model path", function()
-                        SetClipboardText(netdata.mdl)
-                    end):SetImage("icon16/page_white_copy.png")
-
-                    if netdata.download_path and tonumber(netdata.download_path) then
-                        submenu:AddOption("Open Outfit Workshop Page", function()
-                            gui.OpenURL("https://steamcommunity.com/workshop/filedetails/?id=" .. netdata.download_path)
-                        end):SetImage("icon16/picture.png")
-                    end
-                    return
-                end
-            end
-
-            if mdl then
-                if api.is_blocked(mdl) then
-                    submenu:AddOption("Unblock Outfit", function()
-                        api.unblock(mdl)
-                    end):SetImage("icon16/status_online.png")
-                else
-                    submenu:AddOption("Block Outfit", function()
-                        api.block(mdl)
-                    end):SetImage("icon16/status_offline.png")
-                end
-                local failed = ent.outfitter_last_error
-                    or (download_path and _load_info_history[download_path] and _load_info_history[download_path].state == "error")
-                if failed then
-                    submenu:AddOption("Temporarily Unblock & Retry", function()
-                        api.retry_outfit(ent)
-                    end):SetImage("icon16/arrow_refresh.png")
-                end
-                submenu:AddOption("Copy model path", function()
-                    SetClipboardText(mdl)
-                end):SetImage("icon16/page_white_copy.png")
-            end
-
-            if download_path and tonumber(download_path) then
-                submenu:AddOption("Open Outfit Workshop Page", function()
-                    gui.OpenURL("https://steamcommunity.com/workshop/filedetails/?id=" .. download_path)
-                end):SetImage("icon16/picture.png")
-            end
-
-            local developer = GetConVar("developer")
-            local me = LocalPlayer()
-            if IsValid(me) and me:IsAdmin() and developer and developer:GetBool() then
-                local debugmenu = submenu:AddSubMenu("Debug", function() end, "icon16/wrench.png")
-                debugmenu:AddOption("Copy my outfit to this bot", function()
-                    local ok, err = SendDebugOutfitToBot(ent)
-                    if not ok then
-                        chat.AddText("[Outfitter] " .. tostring(err or "failed"))
-                    end
-                end)
-                debugmenu:AddOption("Clear this bot's outfit", function()
-                    local ok, err = SendDebugClearOutfit(ent)
-                    if not ok then
-                        chat.AddText("[Outfitter] " .. tostring(err or "failed"))
-                    end
-                end)
-                debugmenu:AddOption("Dump outfit info", function()
-                    local mdl, download_path, skin, bodygroups, dependency_manifest = ent:OutfitInfo()
-                    PrintTable({
-                        mdl = mdl,
-                        download_path = download_path,
-                        skin = skin,
-                        bodygroups = bodygroups,
-                        dependency_manifest = dependency_manifest
-                    })
-                end)
-            end
-        end,
-
-        Action = function(self, ent)
-            GUIOpen()
-        end
-    })
-end
